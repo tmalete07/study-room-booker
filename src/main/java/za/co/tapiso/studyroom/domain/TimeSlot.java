@@ -20,4 +20,15 @@ public record TimeSlot(LocalDateTime start, LocalDateTime end) {
     public long durationInMinutes() {
         return Duration.between(start, end).toMinutes();
     }
+
+    /**
+     * Two slots overlap when each one starts before the other one ends.
+     * Slots that only touch (one ends exactly when the other starts) do not overlap.
+     */
+    public boolean overlaps(TimeSlot other) {
+        if (other == null) {
+            throw new IllegalArgumentException("Other slot is required");
+        }
+        return this.start.isBefore(other.end) && other.start.isBefore(this.end);
+    }
 }
