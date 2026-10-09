@@ -25,3 +25,8 @@ mvn test
 | Integration | JUnit 5, H2, Javalin         | Planned |
 | API         | REST-assured                 | Planned |
 | Acceptance  | Cucumber + Playwright (Java) | Planned |
+
+
+## Verification
+
+WTC-G2SNX332
