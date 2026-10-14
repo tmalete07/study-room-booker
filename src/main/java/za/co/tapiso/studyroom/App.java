@@ -1,10 +1,22 @@
 package za.co.tapiso.studyroom;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.json.JavalinJackson;
+import za.co.tapiso.studyroom.api.CreateBookingRequest;
+import za.co.tapiso.studyroom.domain.Booking;
+import za.co.tapiso.studyroom.domain.BookingPolicy;
+import za.co.tapiso.studyroom.domain.TimeSlot;
+import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
 import za.co.tapiso.studyroom.repository.InMemoryRoomRepository;
 import za.co.tapiso.studyroom.repository.RoomRepository;
+import za.co.tapiso.studyroom.service.BookingService;
 
+import java.time.Clock;
 import java.util.Map;
 
 public class App {
@@ -22,13 +34,43 @@ public class App {
      * Builds the app with the given rooms. Tests use this to control exactly which rooms exist.
      */
     public static Javalin create(RoomRepository rooms) {
-        return Javalin.create(config ->
-                        config.staticFiles.add("/public", Location.CLASSPATH))
+        return create(rooms, defaultBookingService());
+    }
+
+    /**
+     * Builds the app with the given rooms and booking service.
+     * Tests use this to pass a booking service with a fixed clock.
+     */
+    public static Javalin create(RoomRepository rooms, BookingService bookings) {
+        return Javalin.create(config -> {
+                    config.staticFiles.add("/public", Location.CLASSPATH);
+                    config.jsonMapper(new JavalinJackson(jsonMapper(), false));
+                })
                 .get("/api/health", ctx -> ctx.json(Map.of("status", "UP")))
-                .get("/api/rooms", ctx -> ctx.json(rooms.findAll()));
+                .get("/api/rooms", ctx -> ctx.json(rooms.findAll()))
+                .post("/api/bookings", ctx -> {
+                    CreateBookingRequest request = ctx.bodyAsClass(CreateBookingRequest.class);
+                    Booking booking = bookings.book(
+                            request.roomId(),
+                            request.studentId(),
+                            new TimeSlot(request.start(), request.end()));
+                    ctx.status(HttpStatus.CREATED).json(booking);
+                });
     }
 
     public static void main(String[] args) {
         create().start(DEFAULT_PORT);
+    }
+
+    private static BookingService defaultBookingService() {
+        return new BookingService(
+                new InMemoryBookingRepository(),
+                new BookingPolicy(Clock.systemDefaultZone()));
+    }
+
+    private static ObjectMapper jsonMapper() {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 }
