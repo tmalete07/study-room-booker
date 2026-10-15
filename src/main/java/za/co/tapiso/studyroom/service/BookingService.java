@@ -6,6 +6,8 @@ import za.co.tapiso.studyroom.domain.TimeSlot;
 import za.co.tapiso.studyroom.repository.BookingRepository;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,6 +40,33 @@ public class BookingService {
         return repository.save(booking);
     }
 
+    /**
+     * Returns one student's bookings, earliest first.
+     */
+    public List<Booking> bookingsFor(String studentId) {
+        requireStudentId(studentId);
+
+        return repository.findAll().stream()
+                .filter(booking -> booking.studentId().equals(studentId))
+                .sorted(Comparator.comparing((Booking booking) -> booking.slot().start()))
+                .toList();
+    }
+
+    /**
+     * Cancels a booking. Only the student who made the booking may cancel it.
+     */
+    public void cancel(String bookingId, String studentId) {
+        requireStudentId(studentId);
+
+        Booking booking = repository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found: " + bookingId));
+
+        if (!booking.studentId().equals(studentId)) {
+            throw new NotBookingOwnerException("Only the student who made a booking can cancel it");
+        }
+        repository.deleteById(bookingId);
+    }
+
     private void checkRoomIsFree(Booking booking) {
         boolean clash = repository.findByRoomId(booking.roomId()).stream()
                 .anyMatch(booking::clashesWith);
@@ -54,6 +83,12 @@ public class BookingService {
         if (bookingsThatDay >= MAX_BOOKINGS_PER_DAY) {
             throw new BookingConflictException(
                     "Students can make at most " + MAX_BOOKINGS_PER_DAY + " bookings per day");
+        }
+    }
+
+    private static void requireStudentId(String studentId) {
+        if (studentId == null || studentId.isBlank()) {
+            throw new IllegalArgumentException("Student id is required");
         }
     }
 }

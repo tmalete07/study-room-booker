@@ -17,7 +17,9 @@ import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
 import za.co.tapiso.studyroom.repository.InMemoryRoomRepository;
 import za.co.tapiso.studyroom.repository.RoomRepository;
 import za.co.tapiso.studyroom.service.BookingConflictException;
+import za.co.tapiso.studyroom.service.BookingNotFoundException;
 import za.co.tapiso.studyroom.service.BookingService;
+import za.co.tapiso.studyroom.service.NotBookingOwnerException;
 
 import java.time.Clock;
 import java.util.Map;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class App {
 
     public static final int DEFAULT_PORT = 7070;
+    public static final String STUDENT_HEADER = "X-Student-Id";
 
     /**
      * Builds the app without starting it, so tests can start it on any port.
@@ -51,6 +54,8 @@ public class App {
                 })
                 .get("/api/health", ctx -> ctx.json(Map.of("status", "UP")))
                 .get("/api/rooms", ctx -> ctx.json(rooms.findAll()))
+                .get("/api/bookings", ctx ->
+                        ctx.json(bookings.bookingsFor(ctx.queryParam("studentId"))))
                 .post("/api/bookings", ctx -> {
                     CreateBookingRequest request = readBookingRequest(ctx);
                     requireRoomExists(rooms, request.roomId());
@@ -61,10 +66,18 @@ public class App {
                             new TimeSlot(request.start(), request.end()));
                     ctx.status(HttpStatus.CREATED).json(booking);
                 })
+                .delete("/api/bookings/{id}", ctx -> {
+                    bookings.cancel(ctx.pathParam("id"), ctx.header(STUDENT_HEADER));
+                    ctx.status(HttpStatus.NO_CONTENT);
+                })
                 .exception(IllegalArgumentException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.BAD_REQUEST, e))
                 .exception(NotFoundException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
+                .exception(BookingNotFoundException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
+                .exception(NotBookingOwnerException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.FORBIDDEN, e))
                 .exception(BookingConflictException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.CONFLICT, e));
     }

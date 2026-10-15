@@ -21,6 +21,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -171,6 +172,109 @@ class BookingApiTest {
                 .body("error", equalTo("Students can make at most 2 bookings per day"));
     }
 
+    // ---------- GET /api/bookings ----------
+
+    @Test
+    void listsOnlyTheStudentsOwnBookings() {
+        createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("R2", "student-1", "2026-10-12T11:00", "2026-10-12T12:00");
+        createBooking("R3", "student-2", "2026-10-12T09:00", "2026-10-12T10:00");
+
+        given()
+                .port(app.port())
+                .queryParam("studentId", "student-1")
+                .when()
+                .get("/api/bookings")
+                .then()
+                .statusCode(200)
+                .body("size()", equalTo(2))
+                .body("studentId", everyItem(equalTo("student-1")));
+    }
+
+    @Test
+    void listingWithoutStudentIdGives400() {
+        given()
+                .port(app.port())
+                .when()
+                .get("/api/bookings")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("Student id is required"));
+    }
+
+    // ---------- DELETE /api/bookings/{id} ----------
+
+    @Test
+    void ownerCanCancelWith204() {
+        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+
+        given()
+                .port(app.port())
+                .header(App.STUDENT_HEADER, "student-1")
+                .when()
+                .delete("/api/bookings/{id}", id)
+                .then()
+                .statusCode(204);
+
+        assertThat(countBookingsFor("student-1")).isZero();
+    }
+
+    @Test
+    void otherStudentCannotCancelWith403() {
+        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+
+        given()
+                .port(app.port())
+                .header(App.STUDENT_HEADER, "student-2")
+                .when()
+                .delete("/api/bookings/{id}", id)
+                .then()
+                .statusCode(403)
+                .body("error", equalTo("Only the student who made a booking can cancel it"));
+
+        assertThat(countBookingsFor("student-1")).isEqualTo(1);
+    }
+
+    @Test
+    void cancellingUnknownBookingGives404() {
+        given()
+                .port(app.port())
+                .header(App.STUDENT_HEADER, "student-1")
+                .when()
+                .delete("/api/bookings/{id}", "does-not-exist")
+                .then()
+                .statusCode(404)
+                .body("error", equalTo("Booking not found: does-not-exist"));
+    }
+
+    @Test
+    void cancellingWithoutStudentHeaderGives400() {
+        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+
+        given()
+                .port(app.port())
+                .when()
+                .delete("/api/bookings/{id}", id)
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("Student id is required"));
+    }
+
+    @Test
+    void cancelledSlotCanBeBookedAgain() {
+        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+
+        given()
+                .port(app.port())
+                .header(App.STUDENT_HEADER, "student-1")
+                .when()
+                .delete("/api/bookings/{id}", id)
+                .then()
+                .statusCode(204);
+
+        createBooking("R1", "student-2", "2026-10-12T09:00", "2026-10-12T10:00");
+    }
+
     // ---------- Helpers ----------
 
     private String createBooking(String roomId, String studentId, String start, String end) {
@@ -184,6 +288,18 @@ class BookingApiTest {
                 .statusCode(201)
                 .extract()
                 .path("id");
+    }
+
+    private int countBookingsFor(String studentId) {
+        return given()
+                .port(app.port())
+                .queryParam("studentId", studentId)
+                .when()
+                .get("/api/bookings")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("size()");
     }
 
     private static String bookingJson(String roomId, String studentId, String start, String end) {

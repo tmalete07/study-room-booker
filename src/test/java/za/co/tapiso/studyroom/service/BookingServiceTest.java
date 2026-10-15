@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -145,6 +146,75 @@ class BookingServiceTest {
         assertThatThrownBy(() -> new BookingService(null, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Repository and policy are required");
+    }
+
+    // ---------- Listing a student's bookings ----------
+
+    @Test
+    void listsOnlyThatStudentsBookingsEarliestFirst() {
+        when(repository.findAll()).thenReturn(List.of(
+                existing("LATE", "R1", "student-1", MONDAY_NINE_AM.plusHours(4), 60),
+                existing("OTHER", "R2", "student-2", MONDAY_NINE_AM, 60),
+                existing("EARLY", "R3", "student-1", MONDAY_NINE_AM, 60)));
+
+        List<Booking> bookings = service.bookingsFor("student-1");
+
+        assertThat(bookings)
+                .extracting(Booking::id)
+                .containsExactly("EARLY", "LATE");
+    }
+
+    @Test
+    void rejectsListingWithoutStudentId() {
+        assertThatThrownBy(() -> service.bookingsFor(" "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Student id is required");
+
+        verifyNoInteractions(repository);
+    }
+
+    // ---------- Rule: only the owner can cancel ----------
+
+    @Test
+    void ownerCanCancelTheirBooking() {
+        when(repository.findById("B1"))
+                .thenReturn(Optional.of(existing("B1", "R1", "student-1", MONDAY_NINE_AM, 60)));
+
+        service.cancel("B1", "student-1");
+
+        verify(repository).deleteById("B1");
+    }
+
+    @Test
+    void otherStudentCannotCancelTheBooking() {
+        when(repository.findById("B1"))
+                .thenReturn(Optional.of(existing("B1", "R1", "student-1", MONDAY_NINE_AM, 60)));
+
+        assertThatThrownBy(() -> service.cancel("B1", "student-2"))
+                .isInstanceOf(NotBookingOwnerException.class)
+                .hasMessage("Only the student who made a booking can cancel it");
+
+        verify(repository, never()).deleteById(any());
+    }
+
+    @Test
+    void cancellingUnknownBookingIsReported() {
+        // No stubbing needed: a Mockito mock returns Optional.empty() by default
+
+        assertThatThrownBy(() -> service.cancel("B404", "student-1"))
+                .isInstanceOf(BookingNotFoundException.class)
+                .hasMessage("Booking not found: B404");
+
+        verify(repository, never()).deleteById(any());
+    }
+
+    @Test
+    void rejectsCancelWithoutStudentId() {
+        assertThatThrownBy(() -> service.cancel("B1", null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Student id is required");
+
+        verifyNoInteractions(repository);
     }
 
     // ---------- Helpers ----------
