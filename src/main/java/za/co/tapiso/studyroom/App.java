@@ -10,11 +10,13 @@ import io.javalin.http.staticfiles.Location;
 import io.javalin.json.JavalinJackson;
 import za.co.tapiso.studyroom.api.CreateBookingRequest;
 import za.co.tapiso.studyroom.api.NotFoundException;
+import za.co.tapiso.studyroom.db.Database;
 import za.co.tapiso.studyroom.domain.Booking;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
 import za.co.tapiso.studyroom.domain.TimeSlot;
 import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
 import za.co.tapiso.studyroom.repository.InMemoryRoomRepository;
+import za.co.tapiso.studyroom.repository.JdbcBookingRepository;
 import za.co.tapiso.studyroom.repository.RoomRepository;
 import za.co.tapiso.studyroom.service.BookingConflictException;
 import za.co.tapiso.studyroom.service.BookingNotFoundException;
@@ -28,19 +30,28 @@ public class App {
 
     public static final int DEFAULT_PORT = 7070;
     public static final String STUDENT_HEADER = "X-Student-Id";
+    public static final String DATABASE_FILE = "./data/study-room-booker";
 
     /**
      * Builds the app without starting it, so tests can start it on any port.
      */
     public static Javalin create() {
-        return create(InMemoryRoomRepository.withDefaultRooms());
+        // The real app keeps bookings in a database file, so they survive a restart
+        Database database = Database.inFile(DATABASE_FILE);
+        database.createSchema();
+
+        BookingService bookings = new BookingService(
+                new JdbcBookingRepository(database),
+                new BookingPolicy(Clock.systemDefaultZone()));
+
+        return create(InMemoryRoomRepository.withDefaultRooms(), bookings);
     }
 
     /**
      * Builds the app with the given rooms. Tests use this to control exactly which rooms exist.
      */
     public static Javalin create(RoomRepository rooms) {
-        return create(rooms, defaultBookingService());
+        return create(rooms, inMemoryBookingService());
     }
 
     /**
@@ -113,7 +124,7 @@ public class App {
         ctx.status(status).json(Map.of("error", e.getMessage()));
     }
 
-    private static BookingService defaultBookingService() {
+    private static BookingService inMemoryBookingService() {
         return new BookingService(
                 new InMemoryBookingRepository(),
                 new BookingPolicy(Clock.systemDefaultZone()));
