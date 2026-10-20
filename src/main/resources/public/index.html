@@ -20,7 +20,61 @@
         <ul id="room-list" class="room-grid" data-testid="room-list"></ul>
         <p id="rooms-message" class="message" data-testid="rooms-message">Loading rooms...</p>
     </section>
+
+    <section id="book" data-testid="booking-section">
+        <h2>Book a room</h2>
+        <p class="section-intro">Bookings last 30 minutes to 2 hours. You can make up to 2 bookings a day.</p>
+
+        <form id="booking-form" class="booking-form" data-testid="booking-form">
+            <label class="field">
+                <span>Student ID</span>
+                <input type="text" name="studentId" id="student-id" data-testid="student-id"
+                       placeholder="e.g. student-1" autocomplete="off" required>
+            </label>
+
+            <label class="field">
+                <span>Room</span>
+                <select name="roomId" id="room-select" data-testid="room-select" required>
+                    <option value="" disabled selected>Choose a room</option>
+                </select>
+            </label>
+
+            <label class="field">
+                <span>Date</span>
+                <input type="date" name="date" id="booking-date" data-testid="booking-date" required>
+            </label>
+
+            <label class="field">
+                <span>Start</span>
+                <input type="time" name="start" id="start-time" data-testid="start-time" value="09:00" required>
+            </label>
+
+            <label class="field">
+                <span>End</span>
+                <input type="time" name="end" id="end-time" data-testid="end-time" value="10:00" required>
+            </label>
+
+            <button type="submit" id="book-button" data-testid="book-button">Book room</button>
+        </form>
+
+        <p id="booking-message" class="message" data-testid="booking-message" role="status" aria-live="polite"></p>
+    </section>
 </main>
+
+<dialog id="booking-dialog" class="booking-dialog" data-testid="booking-dialog"
+        aria-labelledby="booking-dialog-title">
+    <svg class="tick" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="tick-circle" cx="26" cy="26" r="24"/>
+        <path class="tick-check" d="M14 27 l8 8 l16 -17"/>
+    </svg>
+
+    <h2 id="booking-dialog-title" class="dialog-title">Room booked!</h2>
+    <p id="booking-dialog-details" class="dialog-details" data-testid="booking-dialog-details"></p>
+
+    <form method="dialog">
+        <button type="submit" class="dialog-button" data-testid="booking-dialog-ok" autofocus>OK</button>
+    </form>
+</dialog>
 
 <script src="/js/app.js"></script>
 </body>

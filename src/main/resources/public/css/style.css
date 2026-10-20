@@ -189,6 +189,64 @@ section p {
     background: rgba(47, 75, 124, 0.1);
 }
 
+/* ---------- Booking form ---------- */
+
+.booking-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    align-items: end;
+    margin-top: 1.25rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.field input,
+.field select {
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(31, 36, 51, 0.15);
+    border-radius: 10px;
+    background: var(--surface);
+}
+
+.field input:focus,
+.field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(47, 75, 124, 0.15);
+}
+
+.booking-form button {
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    padding: 0.7rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.booking-form button:hover {
+    background: var(--primary-deep);
+}
+
+.booking-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
 /* ---------- Messages ---------- */
 
 .message {
@@ -199,9 +257,119 @@ section p {
     display: none;
 }
 
+.message.success {
+    color: var(--success);
+    font-weight: 500;
+}
+
 .message.error {
     color: var(--danger);
     font-weight: 500;
+}
+
+/* ---------- Booking pop-up ---------- */
+
+.booking-dialog {
+    width: calc(100% - 2.5rem);
+    max-width: 360px;
+    padding: 2rem 2.25rem;
+    border: none;
+    border-radius: var(--radius);
+    text-align: center;
+    color: var(--ink);
+    background: var(--surface);
+    box-shadow: 0 24px 60px rgba(31, 36, 51, 0.25);
+}
+
+.booking-dialog[open] {
+    animation: pop-in 0.25s ease-out;
+}
+
+.booking-dialog::backdrop {
+    background: rgba(27, 45, 79, 0.45);
+    backdrop-filter: blur(3px);
+}
+
+.dialog-title {
+    margin: 1rem 0 0.25rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.dialog-details {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+}
+
+.dialog-button {
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    min-width: 120px;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--success);
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+.dialog-button:hover {
+    filter: brightness(0.92);
+}
+
+.dialog-button:focus-visible {
+    outline: 3px solid rgba(46, 158, 107, 0.35);
+    outline-offset: 2px;
+}
+
+/* The tick draws itself: first the circle, then the check mark */
+.tick {
+    display: block;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto;
+}
+
+.tick-circle {
+    fill: none;
+    stroke: var(--success);
+    stroke-width: 3;
+    stroke-dasharray: 152;
+    stroke-dashoffset: 152;
+    animation: draw 0.6s ease-out forwards;
+}
+
+.tick-check {
+    fill: none;
+    stroke: var(--success);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: draw 0.35s ease-out 0.5s forwards;
+}
+
+@keyframes draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes pop-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* People who turn off animations in their system settings see the finished tick straight away */
+@media (prefers-reduced-motion: reduce) {
+    .booking-dialog[open],
+    .tick-circle,
+    .tick-check {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
 }
 
 /* ---------- Small screens ---------- */
