@@ -9,18 +9,25 @@ import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.json.JavalinJackson;
 import za.co.tapiso.studyroom.api.CreateBookingRequest;
+import za.co.tapiso.studyroom.api.LoginRequest;
+import za.co.tapiso.studyroom.api.LoginResponse;
 import za.co.tapiso.studyroom.api.NotFoundException;
 import za.co.tapiso.studyroom.db.Database;
 import za.co.tapiso.studyroom.domain.Booking;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
+import za.co.tapiso.studyroom.domain.Learner;
 import za.co.tapiso.studyroom.domain.TimeSlot;
 import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
+import za.co.tapiso.studyroom.repository.InMemoryLearnerRepository;
 import za.co.tapiso.studyroom.repository.InMemoryRoomRepository;
 import za.co.tapiso.studyroom.repository.JdbcBookingRepository;
+import za.co.tapiso.studyroom.repository.LearnerRepository;
 import za.co.tapiso.studyroom.repository.RoomRepository;
 import za.co.tapiso.studyroom.service.BookingConflictException;
 import za.co.tapiso.studyroom.service.BookingNotFoundException;
 import za.co.tapiso.studyroom.service.BookingService;
+import za.co.tapiso.studyroom.service.LearnerService;
+import za.co.tapiso.studyroom.service.LoginFailedException;
 import za.co.tapiso.studyroom.service.NotBookingOwnerException;
 
 import java.time.Clock;
@@ -59,16 +66,33 @@ public class App {
      * Tests use this to pass a booking service with a fixed clock.
      */
     public static Javalin create(RoomRepository rooms, BookingService bookings) {
+        return create(rooms, bookings, InMemoryLearnerRepository.withSampleLearners());
+    }
+
+    /**
+     * Builds the app with the given rooms, booking service and learner register.
+     * Tests use this to control exactly which learners can log in.
+     */
+    public static Javalin create(RoomRepository rooms, BookingService bookings, LearnerRepository learners) {
+        LearnerService learnerService = new LearnerService(learners);
+
         return Javalin.create(config -> {
                     config.staticFiles.add("/public", Location.CLASSPATH);
                     config.jsonMapper(new JavalinJackson(jsonMapper(), false));
                 })
                 .get("/api/health", ctx -> ctx.json(Map.of("status", "UP")))
                 .get("/api/rooms", ctx -> ctx.json(rooms.findAll()))
+                .post("/api/login", ctx -> {
+                    LoginRequest request = readBody(ctx, LoginRequest.class,
+                            "Request body must be valid login JSON");
+                    Learner learner = learnerService.login(request.name(), request.studentNumber());
+                    ctx.json(LoginResponse.from(learner));
+                })
                 .get("/api/bookings", ctx ->
                         ctx.json(bookings.bookingsFor(ctx.queryParam("studentId"))))
                 .post("/api/bookings", ctx -> {
-                    CreateBookingRequest request = readBookingRequest(ctx);
+                    CreateBookingRequest request = readBody(ctx, CreateBookingRequest.class,
+                            "Request body must be valid booking JSON");
                     requireRoomExists(rooms, request.roomId());
 
                     Booking booking = bookings.book(
@@ -83,6 +107,8 @@ public class App {
                 })
                 .exception(IllegalArgumentException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.BAD_REQUEST, e))
+                .exception(LoginFailedException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.UNAUTHORIZED, e))
                 .exception(NotFoundException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
                 .exception(BookingNotFoundException.class,
@@ -97,17 +123,20 @@ public class App {
         create().start(DEFAULT_PORT);
     }
 
-    private static CreateBookingRequest readBookingRequest(Context ctx) {
-        CreateBookingRequest request;
+    /**
+     * Reads the JSON body as the given type, or fails with a 400 and the given message.
+     */
+    private static <T> T readBody(Context ctx, Class<T> type, String errorMessage) {
+        T body;
         try {
-            request = ctx.bodyAsClass(CreateBookingRequest.class);
+            body = ctx.bodyAsClass(type);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Request body must be valid booking JSON");
+            throw new IllegalArgumentException(errorMessage);
         }
-        if (request == null) {
-            throw new IllegalArgumentException("Request body must be valid booking JSON");
+        if (body == null) {
+            throw new IllegalArgumentException(errorMessage);
         }
-        return request;
+        return body;
     }
 
     private static void requireRoomExists(RoomRepository rooms, String roomId) {
