@@ -21,11 +21,19 @@ public class InMemoryRoomRepository implements RoomRepository {
         rooms.forEach(room -> this.rooms.put(room.id(), room));
     }
 
+    /**
+     * Tswelopele Secondary School's rooms: one quiet room for each grade, plus rooms every grade can share.
+     */
     public static InMemoryRoomRepository withDefaultRooms() {
         return new InMemoryRoomRepository(List.of(
-                new Room("R1", "Quiet Room", 4),
-                new Room("R2", "Group Room", 8),
-                new Room("R3", "Solo Pod", 1)));
+                new Room("Q8", "Grade 8 Quiet Room", 4, 8),
+                new Room("Q9", "Grade 9 Quiet Room", 4, 9),
+                new Room("Q10", "Grade 10 Quiet Room", 4, 10),
+                new Room("Q11", "Grade 11 Quiet Room", 4, 11),
+                new Room("Q12", "Grade 12 Quiet Room", 4, 12),
+                new Room("GROUP", "Group Room", 8),
+                new Room("LIBRARY", "Library Pod", 1),
+                new Room("LAB", "Computer Lab", 20)));
     }
 
     @Override

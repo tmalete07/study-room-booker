@@ -32,6 +32,10 @@ class BookingPersistenceTest {
     private static final Clock DAY_BEFORE = Clock.fixed(
             LocalDateTime.of(2026, 10, 11, 12, 0).atZone(ZONE).toInstant(), ZONE);
 
+    // Learners from the sample register
+    private static final String PALESA_GRADE_11 = "TSS4001-11";
+    private static final String ZANELE_GRADE_12 = "TSS5001-12";
+
     // JUnit creates an empty temporary folder for each test and deletes it afterwards
     @TempDir
     Path tempDir;
@@ -54,13 +58,13 @@ class BookingPersistenceTest {
     @Test
     void bookingSurvivesAServerRestart() {
         app = startApp();
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         restartApp();
 
         given()
                 .port(app.port())
-                .queryParam("studentId", "student-1")
+                .queryParam("studentId", PALESA_GRADE_11)
                 .when()
                 .get("/api/bookings")
                 .then()
@@ -71,14 +75,14 @@ class BookingPersistenceTest {
     @Test
     void rulesStillUseSavedBookingsAfterARestart() {
         app = startApp();
-        createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         restartApp();
 
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R1", "student-2", "2026-10-12T09:30", "2026-10-12T10:30"))
+                .body(bookingJson("GROUP", ZANELE_GRADE_12, "2026-10-12T09:30", "2026-10-12T10:30"))
                 .when()
                 .post("/api/bookings")
                 .then()
@@ -89,11 +93,11 @@ class BookingPersistenceTest {
     @Test
     void cancelledBookingStaysCancelledAfterARestart() {
         app = startApp();
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
-                .header(App.STUDENT_HEADER, "student-1")
+                .header(App.STUDENT_HEADER, PALESA_GRADE_11)
                 .when()
                 .delete("/api/bookings/{id}", id)
                 .then()
@@ -103,7 +107,7 @@ class BookingPersistenceTest {
 
         given()
                 .port(app.port())
-                .queryParam("studentId", "student-1")
+                .queryParam("studentId", PALESA_GRADE_11)
                 .when()
                 .get("/api/bookings")
                 .then()

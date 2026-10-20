@@ -16,6 +16,9 @@ import za.co.tapiso.studyroom.db.Database;
 import za.co.tapiso.studyroom.domain.Booking;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
 import za.co.tapiso.studyroom.domain.Learner;
+import za.co.tapiso.studyroom.domain.Room;
+import za.co.tapiso.studyroom.domain.RoomNotForGradeException;
+import za.co.tapiso.studyroom.domain.StudentNumber;
 import za.co.tapiso.studyroom.domain.TimeSlot;
 import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
 import za.co.tapiso.studyroom.repository.InMemoryLearnerRepository;
@@ -32,6 +35,7 @@ import za.co.tapiso.studyroom.service.NotBookingOwnerException;
 
 import java.time.Clock;
 import java.util.Map;
+import java.util.Optional;
 
 public class App {
 
@@ -88,27 +92,35 @@ public class App {
                     Learner learner = learnerService.login(request.name(), request.studentNumber());
                     ctx.json(LoginResponse.from(learner));
                 })
-                .get("/api/bookings", ctx ->
-                        ctx.json(bookings.bookingsFor(ctx.queryParam("studentId"))))
+                .get("/api/bookings", ctx -> {
+                    StudentNumber student = StudentNumber.parse(ctx.queryParam("studentId"));
+                    ctx.json(bookings.bookingsFor(student.value()));
+                })
                 .post("/api/bookings", ctx -> {
                     CreateBookingRequest request = readBody(ctx, CreateBookingRequest.class,
                             "Request body must be valid booking JSON");
-                    requireRoomExists(rooms, request.roomId());
+
+                    StudentNumber student = StudentNumber.parse(request.studentId());
+                    requireRegistered(learners, student);
+                    findRoom(rooms, request.roomId()).ifPresent(room -> room.checkOpenTo(student));
 
                     Booking booking = bookings.book(
                             request.roomId(),
-                            request.studentId(),
+                            student.value(),
                             new TimeSlot(request.start(), request.end()));
                     ctx.status(HttpStatus.CREATED).json(booking);
                 })
                 .delete("/api/bookings/{id}", ctx -> {
-                    bookings.cancel(ctx.pathParam("id"), ctx.header(STUDENT_HEADER));
+                    StudentNumber student = StudentNumber.parse(ctx.header(STUDENT_HEADER));
+                    bookings.cancel(ctx.pathParam("id"), student.value());
                     ctx.status(HttpStatus.NO_CONTENT);
                 })
                 .exception(IllegalArgumentException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.BAD_REQUEST, e))
                 .exception(LoginFailedException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.UNAUTHORIZED, e))
+                .exception(RoomNotForGradeException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.FORBIDDEN, e))
                 .exception(NotFoundException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
                 .exception(BookingNotFoundException.class,
@@ -139,14 +151,25 @@ public class App {
         return body;
     }
 
-    private static void requireRoomExists(RoomRepository rooms, String roomId) {
+    /**
+     * Only learners in the admin office register can book.
+     */
+    private static void requireRegistered(LearnerRepository learners, StudentNumber student) {
+        if (learners.findByStudentNumber(student).isEmpty()) {
+            throw new NotFoundException("Learner not found: " + student);
+        }
+    }
+
+    /**
+     * Finds the room, or returns empty when no room id was sent. An unknown room id is a 404.
+     */
+    private static Optional<Room> findRoom(RoomRepository rooms, String roomId) {
         // A missing room id is a bad request (400), handled by Booking's own validation
         if (roomId == null || roomId.isBlank()) {
-            return;
+            return Optional.empty();
         }
-        if (rooms.findById(roomId).isEmpty()) {
-            throw new NotFoundException("Room not found: " + roomId);
-        }
+        return Optional.of(rooms.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("Room not found: " + roomId)));
     }
 
     private static void sendError(Context ctx, HttpStatus status, Exception e) {

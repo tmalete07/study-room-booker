@@ -29,6 +29,11 @@ class BookingApiTest {
 
     private static final ZoneId ZONE = ZoneId.of("Africa/Johannesburg");
 
+    // Learners from the sample register
+    private static final String PALESA_GRADE_11 = "TSS4001-11";
+    private static final String ZANELE_GRADE_12 = "TSS5001-12";
+    private static final String THABO_GRADE_8 = "TSS1001-8";
+
     private Javalin app;
 
     @BeforeEach
@@ -54,25 +59,64 @@ class BookingApiTest {
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00"))
+                .body(bookingJson("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00"))
                 .when()
                 .post("/api/bookings")
                 .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .body("id", not(emptyOrNullString()))
-                .body("roomId", equalTo("R1"))
-                .body("studentId", equalTo("student-1"))
+                .body("roomId", equalTo("GROUP"))
+                .body("studentId", equalTo(PALESA_GRADE_11))
                 .body("slot.start", startsWith("2026-10-12T09:00"))
                 .body("slot.end", startsWith("2026-10-12T10:00"));
     }
 
     @Test
     void givesEachBookingADifferentId() {
-        String firstId = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
-        String secondId = createBooking("R2", "student-2", "2026-10-12T09:00", "2026-10-12T10:00");
+        String firstId = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
+        String secondId = createBooking("LIBRARY", ZANELE_GRADE_12, "2026-10-12T09:00", "2026-10-12T10:00");
 
         assertThat(firstId).isNotEqualTo(secondId);
+    }
+
+    @Test
+    void lowerCaseStudentNumberIsStoredInCapitals() {
+        given()
+                .port(app.port())
+                .contentType(ContentType.JSON)
+                .body(bookingJson("GROUP", "tss4001-11", "2026-10-12T09:00", "2026-10-12T10:00"))
+                .when()
+                .post("/api/bookings")
+                .then()
+                .statusCode(201)
+                .body("studentId", equalTo(PALESA_GRADE_11));
+    }
+
+    // ---------- Grade rooms ----------
+
+    @Test
+    void learnerCanBookTheirOwnGradesQuietRoom() {
+        createBooking("Q11", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
+    }
+
+    @Test
+    void learnerCannotBookAnotherGradesQuietRoomWith403() {
+        given()
+                .port(app.port())
+                .contentType(ContentType.JSON)
+                .body(bookingJson("Q11", THABO_GRADE_8, "2026-10-12T09:00", "2026-10-12T10:00"))
+                .when()
+                .post("/api/bookings")
+                .then()
+                .statusCode(403)
+                .body("error", equalTo("The Grade 11 Quiet Room is for Grade 11 learners only"));
+    }
+
+    @Test
+    void differentGradesCanUseTheirOwnQuietRoomsAtTheSameTime() {
+        createBooking("Q8", THABO_GRADE_8, "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("Q11", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
     }
 
     // ---------- 400 Bad Request ----------
@@ -87,7 +131,7 @@ class BookingApiTest {
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R1", "student-1", start, end))
+                .body(bookingJson("GROUP", PALESA_GRADE_11, start, end))
                 .when()
                 .post("/api/bookings")
                 .then()
@@ -102,7 +146,7 @@ class BookingApiTest {
                 .port(app.port())
                 .contentType(ContentType.JSON)
                 .body("""
-                        {"roomId": "R1", "studentId": "student-1"}
+                        {"roomId": "GROUP", "studentId": "TSS4001-11"}
                         """)
                 .when()
                 .post("/api/bookings")
@@ -124,6 +168,19 @@ class BookingApiTest {
                 .body("error", equalTo("Request body must be valid booking JSON"));
     }
 
+    @Test
+    void rejectsInvalidStudentNumberWith400() {
+        given()
+                .port(app.port())
+                .contentType(ContentType.JSON)
+                .body(bookingJson("GROUP", "student-1", "2026-10-12T09:00", "2026-10-12T10:00"))
+                .when()
+                .post("/api/bookings")
+                .then()
+                .statusCode(400)
+                .body("error", equalTo("Invalid student number. Use the format TSS1234-11"));
+    }
+
     // ---------- 404 Not Found ----------
 
     @Test
@@ -131,24 +188,37 @@ class BookingApiTest {
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R99", "student-1", "2026-10-12T09:00", "2026-10-12T10:00"))
+                .body(bookingJson("ROOM99", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00"))
                 .when()
                 .post("/api/bookings")
                 .then()
                 .statusCode(404)
-                .body("error", equalTo("Room not found: R99"));
+                .body("error", equalTo("Room not found: ROOM99"));
+    }
+
+    @Test
+    void rejectsLearnerWhoIsNotInTheRegisterWith404() {
+        given()
+                .port(app.port())
+                .contentType(ContentType.JSON)
+                .body(bookingJson("GROUP", "TSS9999-11", "2026-10-12T09:00", "2026-10-12T10:00"))
+                .when()
+                .post("/api/bookings")
+                .then()
+                .statusCode(404)
+                .body("error", equalTo("Learner not found: TSS9999-11"));
     }
 
     // ---------- 409 Conflict ----------
 
     @Test
     void rejectsOverlappingBookingWith409() {
-        createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R1", "student-2", "2026-10-12T09:30", "2026-10-12T10:30"))
+                .body(bookingJson("GROUP", ZANELE_GRADE_12, "2026-10-12T09:30", "2026-10-12T10:30"))
                 .when()
                 .post("/api/bookings")
                 .then()
@@ -158,13 +228,13 @@ class BookingApiTest {
 
     @Test
     void rejectsThirdBookingOnSameDayWith409() {
-        createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
-        createBooking("R2", "student-1", "2026-10-12T11:00", "2026-10-12T12:00");
+        createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("LIBRARY", PALESA_GRADE_11, "2026-10-12T11:00", "2026-10-12T12:00");
 
         given()
                 .port(app.port())
                 .contentType(ContentType.JSON)
-                .body(bookingJson("R3", "student-1", "2026-10-12T14:00", "2026-10-12T15:00"))
+                .body(bookingJson("LAB", PALESA_GRADE_11, "2026-10-12T14:00", "2026-10-12T15:00"))
                 .when()
                 .post("/api/bookings")
                 .then()
@@ -176,19 +246,19 @@ class BookingApiTest {
 
     @Test
     void listsOnlyTheStudentsOwnBookings() {
-        createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
-        createBooking("R2", "student-1", "2026-10-12T11:00", "2026-10-12T12:00");
-        createBooking("R3", "student-2", "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("LIBRARY", PALESA_GRADE_11, "2026-10-12T11:00", "2026-10-12T12:00");
+        createBooking("LAB", ZANELE_GRADE_12, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
-                .queryParam("studentId", "student-1")
+                .queryParam("studentId", PALESA_GRADE_11)
                 .when()
                 .get("/api/bookings")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(2))
-                .body("studentId", everyItem(equalTo("student-1")));
+                .body("studentId", everyItem(equalTo(PALESA_GRADE_11)));
     }
 
     @Test
@@ -199,47 +269,47 @@ class BookingApiTest {
                 .get("/api/bookings")
                 .then()
                 .statusCode(400)
-                .body("error", equalTo("Student id is required"));
+                .body("error", equalTo("Student number is required"));
     }
 
     // ---------- DELETE /api/bookings/{id} ----------
 
     @Test
     void ownerCanCancelWith204() {
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
-                .header(App.STUDENT_HEADER, "student-1")
+                .header(App.STUDENT_HEADER, PALESA_GRADE_11)
                 .when()
                 .delete("/api/bookings/{id}", id)
                 .then()
                 .statusCode(204);
 
-        assertThat(countBookingsFor("student-1")).isZero();
+        assertThat(countBookingsFor(PALESA_GRADE_11)).isZero();
     }
 
     @Test
     void otherStudentCannotCancelWith403() {
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
-                .header(App.STUDENT_HEADER, "student-2")
+                .header(App.STUDENT_HEADER, ZANELE_GRADE_12)
                 .when()
                 .delete("/api/bookings/{id}", id)
                 .then()
                 .statusCode(403)
                 .body("error", equalTo("Only the student who made a booking can cancel it"));
 
-        assertThat(countBookingsFor("student-1")).isEqualTo(1);
+        assertThat(countBookingsFor(PALESA_GRADE_11)).isEqualTo(1);
     }
 
     @Test
     void cancellingUnknownBookingGives404() {
         given()
                 .port(app.port())
-                .header(App.STUDENT_HEADER, "student-1")
+                .header(App.STUDENT_HEADER, PALESA_GRADE_11)
                 .when()
                 .delete("/api/bookings/{id}", "does-not-exist")
                 .then()
@@ -249,7 +319,7 @@ class BookingApiTest {
 
     @Test
     void cancellingWithoutStudentHeaderGives400() {
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
@@ -257,22 +327,22 @@ class BookingApiTest {
                 .delete("/api/bookings/{id}", id)
                 .then()
                 .statusCode(400)
-                .body("error", equalTo("Student id is required"));
+                .body("error", equalTo("Student number is required"));
     }
 
     @Test
     void cancelledSlotCanBeBookedAgain() {
-        String id = createBooking("R1", "student-1", "2026-10-12T09:00", "2026-10-12T10:00");
+        String id = createBooking("GROUP", PALESA_GRADE_11, "2026-10-12T09:00", "2026-10-12T10:00");
 
         given()
                 .port(app.port())
-                .header(App.STUDENT_HEADER, "student-1")
+                .header(App.STUDENT_HEADER, PALESA_GRADE_11)
                 .when()
                 .delete("/api/bookings/{id}", id)
                 .then()
                 .statusCode(204);
 
-        createBooking("R1", "student-2", "2026-10-12T09:00", "2026-10-12T10:00");
+        createBooking("GROUP", ZANELE_GRADE_12, "2026-10-12T09:00", "2026-10-12T10:00");
     }
 
     // ---------- Helpers ----------

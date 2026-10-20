@@ -11,12 +11,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class InMemoryRoomRepositoryTest {
 
     @Test
-    void defaultRoomsAreAvailable() {
+    void defaultRoomsAreTheSchoolsRooms() {
         RoomRepository repository = InMemoryRoomRepository.withDefaultRooms();
 
         assertThat(repository.findAll())
                 .extracting(Room::id)
-                .containsExactly("R1", "R2", "R3");
+                .containsExactly("Q8", "Q9", "Q10", "Q11", "Q12", "GROUP", "LIBRARY", "LAB");
     }
 
     @Test
