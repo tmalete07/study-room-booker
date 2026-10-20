@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" role="img" aria-labelledby="badge-title">
+    <title id="badge-title">Tswelopele Secondary School badge</title>
+    <!-- Shield with a pink border -->
+    <path d="M60 5 L112 21 V68 C112 103 89 125 60 135 C31 125 8 103 8 68 V21 Z"
+          fill="#6d1a2e" stroke="#f0a7bf" stroke-width="5" stroke-linejoin="round"/>
+    <!-- Thin white inner line -->
+    <path d="M60 15 L102 28 V68 C102 97 83 115 60 124 C37 115 18 97 18 68 V28 Z"
+          fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+    <!-- Open book: learning -->
+    <path d="M32 48 Q46 42 60 48 Q74 42 88 48 V72 Q74 66 60 72 Q46 66 32 72 Z" fill="#ffffff"/>
+    <path d="M60 48 V72" stroke="#6d1a2e" stroke-width="2"/>
+    <!-- Rising arrow: "Tswelopele" means progress -->
+    <path d="M60 40 V24 M52 31 L60 23 L68 31" fill="none" stroke="#f0a7bf" stroke-width="3.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Monogram -->
+    <text x="60" y="104" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+          font-size="22" font-weight="700" letter-spacing="3" fill="#f0a7bf">TSS</text>
+</svg>
