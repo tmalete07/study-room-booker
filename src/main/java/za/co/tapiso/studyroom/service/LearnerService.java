@@ -1,9 +1,12 @@
 package za.co.tapiso.studyroom.service;
 
 import za.co.tapiso.studyroom.domain.Learner;
+import za.co.tapiso.studyroom.domain.LearnerProfile;
 import za.co.tapiso.studyroom.domain.StudentNumber;
+import za.co.tapiso.studyroom.domain.StudyGoal;
 import za.co.tapiso.studyroom.repository.LearnerRepository;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -37,6 +40,38 @@ public class LearnerService {
             throw new LoginFailedException(LOGIN_FAILED);
         }
         return learner;
+    }
+
+    /**
+     * Returns the learner and their profile.
+     */
+    public ProfileDetails profileOf(String studentNumberText) {
+        Learner learner = registeredLearner(StudentNumber.parse(studentNumberText));
+        return new ProfileDetails(learner, learners.findProfile(learner.studentNumber()));
+    }
+
+    /**
+     * Changes a learner's subjects, "about me" and study goals.
+     * Only the learner themselves may do this; class and email stay as the admin office set them.
+     */
+    public ProfileDetails updateProfile(String studentNumberText, String requestedByText,
+                                        List<String> subjects, String about, List<StudyGoal> goals) {
+        StudentNumber owner = StudentNumber.parse(studentNumberText);
+        StudentNumber requestedBy = StudentNumber.parse(requestedByText);
+        Learner learner = registeredLearner(owner);
+
+        if (!owner.equals(requestedBy)) {
+            throw new NotProfileOwnerException("You can only edit your own profile");
+        }
+
+        LearnerProfile updated = learners.findProfile(owner).withLearnerEdits(subjects, about, goals);
+        learners.saveProfile(owner, updated);
+        return new ProfileDetails(learner, updated);
+    }
+
+    private Learner registeredLearner(StudentNumber studentNumber) {
+        return learners.findByStudentNumber(studentNumber)
+                .orElseThrow(() -> new LearnerNotFoundException("Learner not found: " + studentNumber));
     }
 
     /**
