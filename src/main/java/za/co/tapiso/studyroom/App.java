@@ -12,6 +12,8 @@ import za.co.tapiso.studyroom.api.CreateBookingRequest;
 import za.co.tapiso.studyroom.api.LoginRequest;
 import za.co.tapiso.studyroom.api.LoginResponse;
 import za.co.tapiso.studyroom.api.NotFoundException;
+import za.co.tapiso.studyroom.api.ProfileResponse;
+import za.co.tapiso.studyroom.api.UpdateProfileRequest;
 import za.co.tapiso.studyroom.db.Database;
 import za.co.tapiso.studyroom.domain.Booking;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
@@ -29,9 +31,12 @@ import za.co.tapiso.studyroom.repository.RoomRepository;
 import za.co.tapiso.studyroom.service.BookingConflictException;
 import za.co.tapiso.studyroom.service.BookingNotFoundException;
 import za.co.tapiso.studyroom.service.BookingService;
+import za.co.tapiso.studyroom.service.LearnerNotFoundException;
 import za.co.tapiso.studyroom.service.LearnerService;
 import za.co.tapiso.studyroom.service.LoginFailedException;
 import za.co.tapiso.studyroom.service.NotBookingOwnerException;
+import za.co.tapiso.studyroom.service.NotProfileOwnerException;
+import za.co.tapiso.studyroom.service.ProfileDetails;
 
 import java.time.Clock;
 import java.util.Map;
@@ -92,6 +97,21 @@ public class App {
                     Learner learner = learnerService.login(request.name(), request.studentNumber());
                     ctx.json(LoginResponse.from(learner));
                 })
+                .get("/api/learners/{studentNumber}/profile", ctx -> {
+                    ProfileDetails details = learnerService.profileOf(ctx.pathParam("studentNumber"));
+                    ctx.json(ProfileResponse.from(details));
+                })
+                .put("/api/learners/{studentNumber}/profile", ctx -> {
+                    UpdateProfileRequest request = readBody(ctx, UpdateProfileRequest.class,
+                            "Request body must be valid profile JSON");
+                    ProfileDetails updated = learnerService.updateProfile(
+                            ctx.pathParam("studentNumber"),
+                            ctx.header(STUDENT_HEADER),
+                            request.subjects(),
+                            request.about(),
+                            request.studyGoals());
+                    ctx.json(ProfileResponse.from(updated));
+                })
                 .get("/api/bookings", ctx -> {
                     StudentNumber student = StudentNumber.parse(ctx.queryParam("studentId"));
                     ctx.json(bookings.bookingsFor(student.value()));
@@ -121,7 +141,11 @@ public class App {
                         (e, ctx) -> sendError(ctx, HttpStatus.UNAUTHORIZED, e))
                 .exception(RoomNotForGradeException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.FORBIDDEN, e))
+                .exception(NotProfileOwnerException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.FORBIDDEN, e))
                 .exception(NotFoundException.class,
+                        (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
+                .exception(LearnerNotFoundException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
                 .exception(BookingNotFoundException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.NOT_FOUND, e))
