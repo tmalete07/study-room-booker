@@ -3,125 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Room Booker | Tswelopele Secondary School</title>
+    <title>My profile | Tswelopele Secondary School</title>
     <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/learner.css">
+    <link rel="stylesheet" href="/css/app-layout.css">
+    <link rel="stylesheet" href="/css/profile.css">
 </head>
-<body>
-<header>
-    <div class="header-top">
-        <div class="brand">
-            <img class="brand-badge" src="/img/tss-badge.svg" alt="Tswelopele Secondary School badge">
-            <div>
-                <p class="school-name" data-testid="school-name">Tswelopele Secondary School</p>
-                <h1>Study Room Booker</h1>
-            </div>
-        </div>
+<body class="app-page">
+<header class="app-header">
+    <a class="app-brand" href="/">
+        <img class="app-badge" src="/img/tss-badge.svg" alt="">
+        <span>
+                <span class="app-school" data-testid="school-name">Tswelopele Secondary School</span>
+                <span class="app-title">Study Room Booker</span>
+            </span>
+    </a>
 
-        <div class="account">
-                <span class="learner-chip" data-testid="learner-chip">
-                    <span class="avatar" id="learner-initials" aria-hidden="true"></span>
-                    <span id="learner-chip-name"></span>
-                </span>
-            <button type="button" id="logout-button" class="logout-button" data-testid="logout-button">Log out</button>
-        </div>
-    </div>
-    <p class="status">Server status: <span id="health-status" data-testid="health-status">checking...</span></p>
+    <nav class="app-nav" aria-label="Main">
+        <a href="/rooms.html" data-testid="nav-rooms">Rooms</a>
+        <a href="/bookings.html" data-testid="nav-bookings">My bookings</a>
+        <a href="/" aria-current="page" data-testid="nav-profile">My profile</a>
+        <button type="button" id="logout-button" class="nav-logout" data-testid="logout-button">Log out</button>
+    </nav>
 </header>
 
-<main>
-    <section id="welcome" class="welcome" data-testid="welcome-section">
-        <h2>Welcome, <span id="learner-first-name" data-testid="learner-first-name"></span></h2>
-        <dl class="learner-details">
-            <div>
-                <dt>Full name</dt>
-                <dd id="learner-name" data-testid="learner-name"></dd>
+<main class="app-main">
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">My learner profile</h1>
+            <p class="page-subtitle">A little about you and what you're working towards.</p>
+        </div>
+        <div class="page-actions">
+            <button type="button" id="edit-profile-button" class="button button-outline" data-testid="edit-profile-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>
+                Edit profile
+            </button>
+            <a href="/book.html" class="button button-primary" data-testid="book-room-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v15H5zM5 9h14M9 3v4M15 3v4"/></svg>
+                Book a room
+            </a>
+        </div>
+    </div>
+
+    <p id="profile-message" class="message" data-testid="profile-message" role="alert"></p>
+
+    <div class="profile-layout">
+        <aside class="card identity-card" data-testid="identity-card">
+            <div class="photo" aria-hidden="true">
+                <span id="profile-initials"></span>
             </div>
-            <div>
-                <dt>Grade</dt>
-                <dd id="learner-grade" data-testid="learner-grade"></dd>
-            </div>
-            <div>
-                <dt>Student number</dt>
-                <dd id="learner-number" data-testid="learner-number"></dd>
-            </div>
-        </dl>
-    </section>
+            <h2 id="profile-name" class="identity-name" data-testid="profile-name"></h2>
+            <p class="identity-role">Learner</p>
+            <span id="profile-grade-class" class="pill" data-testid="profile-grade-class"></span>
 
-    <section id="rooms" data-testid="rooms-section">
-        <h2>Rooms you can book</h2>
-        <p class="section-intro">Your grade's quiet room and the rooms every grade shares. Bookings run from 08:00 to 20:00.</p>
+            <hr>
+            <p class="eyebrow">Your profile, your story</p>
+            <p class="muted small">Keep your subjects and goals up to date so teachers and classmates know what you are working on.</p>
+        </aside>
 
-        <ul id="room-list" class="room-grid" data-testid="room-list"></ul>
-        <p id="rooms-message" class="message" data-testid="rooms-message">Loading rooms...</p>
-    </section>
+        <div class="profile-cards">
+            <article class="card card-accent" data-testid="details-card">
+                <div class="card-heading">
+                    <h2>Learner details</h2>
+                    <span class="card-note">From the admin office</span>
+                </div>
+                <dl class="details-grid">
+                    <div>
+                        <dt>First name</dt>
+                        <dd id="detail-first-name" data-testid="detail-first-name"></dd>
+                    </div>
+                    <div class="span-2">
+                        <dt>Surname</dt>
+                        <dd id="detail-surname" data-testid="detail-surname"></dd>
+                    </div>
+                    <div>
+                        <dt>Grade</dt>
+                        <dd id="detail-grade" data-testid="detail-grade"></dd>
+                    </div>
+                    <div>
+                        <dt>Class</dt>
+                        <dd id="detail-class" data-testid="detail-class"></dd>
+                    </div>
+                    <div>
+                        <dt>Student ID</dt>
+                        <dd id="detail-number" data-testid="detail-number"></dd>
+                    </div>
+                    <div class="span-3">
+                        <dt>School email</dt>
+                        <dd id="detail-email" data-testid="detail-email"></dd>
+                    </div>
+                </dl>
+            </article>
 
-    <section id="book" data-testid="booking-section">
-        <h2>Book a room</h2>
-        <p class="section-intro">Bookings last 30 minutes to 2 hours. You can make up to 2 bookings a day.</p>
+            <article class="card" data-testid="subjects-card">
+                <div class="card-heading">
+                    <h2>My subjects</h2>
+                    <span id="subject-count" class="card-note" data-testid="subject-count"></span>
+                </div>
+                <ul id="subject-list" class="pill-list" data-testid="subject-list"></ul>
+            </article>
 
-        <form id="booking-form" class="booking-form" data-testid="booking-form">
-            <label class="field">
-                <span>Room</span>
-                <select name="roomId" id="room-select" data-testid="room-select" required>
-                    <option value="" disabled selected>Choose a room</option>
-                </select>
-            </label>
+            <article class="card" data-testid="about-card">
+                <h2>A little about me</h2>
+                <p id="about-text" class="about-text" data-testid="about-text"></p>
 
-            <label class="field">
-                <span>Date</span>
-                <input type="date" name="date" id="booking-date" data-testid="booking-date" required>
-            </label>
-
-            <label class="field">
-                <span>Start</span>
-                <input type="time" name="start" id="start-time" data-testid="start-time" value="09:00" required>
-            </label>
-
-            <label class="field">
-                <span>End</span>
-                <input type="time" name="end" id="end-time" data-testid="end-time" value="10:00" required>
-            </label>
-
-            <button type="submit" id="book-button" data-testid="book-button">Book room</button>
-        </form>
-
-        <p id="booking-message" class="message" data-testid="booking-message" role="status" aria-live="polite"></p>
-    </section>
+                <hr>
+                <h3>My study goals</h3>
+                <ul id="goal-list" class="goal-list" data-testid="goal-list"></ul>
+            </article>
+        </div>
+    </div>
 </main>
 
-<dialog id="booking-dialog" class="booking-dialog" data-testid="booking-dialog"
-        aria-labelledby="booking-dialog-title">
-    <svg class="tick" viewBox="0 0 52 52" aria-hidden="true">
-        <circle class="tick-circle" cx="26" cy="26" r="24"/>
-        <path class="tick-check" d="M14 27 l8 8 l16 -17"/>
-    </svg>
+<footer class="app-footer">
+    <span>Tswelopele Secondary School</span>
+    <span>Learner space &middot; Growing together</span>
+</footer>
 
-    <h2 id="booking-dialog-title" class="dialog-title">Room booked!</h2>
-    <p id="booking-dialog-details" class="dialog-details" data-testid="booking-dialog-details"></p>
+<dialog id="edit-dialog" class="edit-dialog" data-testid="edit-dialog" aria-labelledby="edit-dialog-title">
+    <form id="edit-form" class="edit-form" novalidate>
+        <h2 id="edit-dialog-title">Edit profile</h2>
+        <p class="muted small">Your name, grade, class, student ID and email come from the admin office and cannot be changed here.</p>
 
-    <form method="dialog">
-        <button type="submit" class="dialog-button" data-testid="booking-dialog-ok" autofocus>OK</button>
+        <label class="field">
+            <span>My subjects <small class="hint">(one per line, up to 10)</small></span>
+            <textarea id="edit-subjects" name="subjects" rows="6" data-testid="edit-subjects"></textarea>
+        </label>
+
+        <label class="field">
+            <span>A little about me <small id="about-counter" class="hint" data-testid="about-counter"></small></span>
+            <textarea id="edit-about" name="about" rows="4" data-testid="edit-about"></textarea>
+        </label>
+
+        <fieldset class="goals-fieldset">
+            <legend>My study goals <small class="hint">(up to 5)</small></legend>
+            <div id="goal-rows" data-testid="goal-rows"></div>
+            <button type="button" id="add-goal-button" class="button button-ghost" data-testid="add-goal-button">+ Add goal</button>
+        </fieldset>
+
+        <p id="edit-message" class="message error" data-testid="edit-message" role="alert"></p>
+
+        <div class="dialog-actions">
+            <button type="button" id="cancel-edit-button" class="button button-outline" data-testid="cancel-edit-button">Cancel</button>
+            <button type="submit" id="save-profile-button" class="button button-primary" data-testid="save-profile-button">Save changes</button>
+        </div>
     </form>
 </dialog>
 
-<dialog id="error-dialog" class="booking-dialog" data-testid="error-dialog"
-        aria-labelledby="error-dialog-title">
-    <svg class="cross" viewBox="0 0 52 52" aria-hidden="true">
-        <circle class="cross-circle" cx="26" cy="26" r="24"/>
-        <path class="cross-line" d="M18 18 L34 34"/>
-        <path class="cross-line cross-line-second" d="M34 18 L18 34"/>
-    </svg>
-
-    <h2 id="error-dialog-title" class="dialog-title">Booking not made</h2>
-    <p id="error-dialog-details" class="dialog-details" data-testid="error-dialog-details"></p>
-
-    <form method="dialog">
-        <button type="submit" class="dialog-button error-button" data-testid="error-dialog-ok" autofocus>OK</button>
-    </form>
-</dialog>
-
-<script src="/js/app.js"></script>
+<script src="/js/session.js"></script>
+<script src="/js/profile.js"></script>
 </body>
 </html>

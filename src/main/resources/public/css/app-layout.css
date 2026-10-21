@@ -1,0 +1,292 @@
+/* Shared layout for the pages a learner sees after logging in:
+   a slim header with navigation, a page heading, cards, buttons and a footer. */
+
+/* ---------- Header and navigation ---------- */
+
+.app-page header.app-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 2.5rem;
+}
+
+.app-page header.app-header::after {
+    display: none;
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.app-badge {
+    width: 44px;
+    height: auto;
+}
+
+.app-school {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.app-title {
+    display: block;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.app-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.app-nav a,
+.nav-logout {
+    font: inherit;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.45rem 0.85rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.app-nav a:hover,
+.nav-logout:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.app-nav a[aria-current="page"] {
+    color: #fff;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.nav-logout {
+    margin-left: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- Page body ---------- */
+
+.app-page .app-main {
+    max-width: 1080px;
+    margin: 2.5rem auto 3rem;
+    padding: 0 1.5rem;
+}
+
+.page-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    margin: 0;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+}
+
+.page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.card {
+    padding: 1.5rem 1.6rem;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid rgba(109, 26, 46, 0.10);
+}
+
+.card-accent {
+    border-top: 3px solid var(--accent);
+}
+
+.card h2 {
+    margin: 0;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.card h3 {
+    margin: 0 0 0.75rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-deep);
+}
+
+.card hr,
+.identity-card hr {
+    margin: 1.25rem 0;
+    border: none;
+    border-top: 1px solid rgba(109, 26, 46, 0.12);
+}
+
+.card-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.small {
+    font-size: 0.85rem;
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    padding: 0.65rem 1.1rem;
+    border-radius: 9px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.button svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.button-primary {
+    color: #fff;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+}
+
+.button-primary:hover {
+    background: var(--primary-deep);
+}
+
+.button-outline {
+    color: var(--primary);
+    border: 1px solid rgba(109, 26, 46, 0.35);
+    background: var(--surface);
+}
+
+.button-outline:hover {
+    background: var(--pink-soft);
+}
+
+.button-ghost {
+    color: var(--primary);
+    border: 1px dashed rgba(109, 26, 46, 0.35);
+    background: transparent;
+}
+
+.button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.button:focus-visible,
+.app-nav a:focus-visible,
+.nav-logout:focus-visible {
+    outline: 3px solid rgba(228, 138, 168, 0.6);
+    outline-offset: 2px;
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 2.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* ---------- Grade 12: white header, like the seniors' trim ---------- */
+
+body.grade-12 header.app-header {
+    color: var(--primary-deep);
+    background: var(--surface);
+    border-bottom: 4px solid var(--accent);
+}
+
+body.grade-12 .app-school {
+    color: var(--primary);
+}
+
+body.grade-12 .app-nav a,
+body.grade-12 .nav-logout {
+    color: var(--primary);
+}
+
+body.grade-12 .app-nav a:hover,
+body.grade-12 .nav-logout:hover,
+body.grade-12 .app-nav a[aria-current="page"] {
+    color: var(--primary-deep);
+    background: var(--pink-soft);
+}
+
+body.grade-12 .nav-logout {
+    border-color: rgba(109, 26, 46, 0.3);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 700px) {
+    .app-page header.app-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .app-page .app-main {
+        padding: 0 1rem;
+    }
+}
