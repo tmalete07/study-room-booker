@@ -1,4 +1,16 @@
+// The logged-in learner, saved by the login page for this browser tab only
+const LEARNER_KEY = "tss-learner";
+
+let learner = null;
 let roomsById = new Map();
+
+function storedLearner() {
+    try {
+        return JSON.parse(sessionStorage.getItem(LEARNER_KEY));
+    } catch (error) {
+        return null;
+    }
+}
 
 async function checkHealth() {
     const statusElement = document.getElementById("health-status");
@@ -13,6 +25,44 @@ async function checkHealth() {
     }
 }
 
+// ---------- Learner details ----------
+
+function showLearner() {
+    const firstName = learner.name.split(" ")[0];
+
+    document.getElementById("learner-first-name").textContent = firstName;
+    document.getElementById("learner-name").textContent = learner.name;
+    document.getElementById("learner-grade").textContent = "Grade " + learner.grade;
+    document.getElementById("learner-number").textContent = learner.studentNumber;
+    document.getElementById("learner-chip-name").textContent = learner.name + " \u00b7 Grade " + learner.grade;
+    document.getElementById("learner-initials").textContent = initials(learner.name);
+
+    // Grade 12 learners get the white theme
+    document.body.classList.toggle("grade-12", learner.grade === 12);
+}
+
+function initials(name) {
+    return name.split(" ")
+        .filter(part => part.length > 0)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join("");
+}
+
+function logOut() {
+    sessionStorage.removeItem(LEARNER_KEY);
+    window.location.replace("/login.html");
+}
+
+// ---------- Rooms ----------
+
+/**
+ * A learner sees their own grade's quiet room and the shared rooms, nothing else.
+ */
+function isOpenToLearner(room) {
+    return room.grade === null || room.grade === undefined || room.grade === learner.grade;
+}
+
 async function loadRooms() {
     const list = document.getElementById("room-list");
     const message = document.getElementById("rooms-message");
@@ -22,7 +72,7 @@ async function loadRooms() {
         if (!response.ok) {
             throw new Error("Could not load rooms (status " + response.status + ")");
         }
-        const rooms = await response.json();
+        const rooms = (await response.json()).filter(isOpenToLearner);
         roomsById = new Map(rooms.map(room => [room.id, room]));
 
         list.replaceChildren(...rooms.map(createRoomCard));
@@ -41,6 +91,11 @@ function createRoomCard(room) {
     card.className = "room-card";
     card.dataset.testid = "room-" + room.id;
 
+    const tag = document.createElement("span");
+    const isShared = room.grade === null || room.grade === undefined;
+    tag.className = isShared ? "room-tag shared" : "room-tag";
+    tag.textContent = isShared ? "All grades" : "Grade " + room.grade + " only";
+
     const name = document.createElement("h3");
     name.className = "room-name";
     name.textContent = room.name;
@@ -56,7 +111,7 @@ function createRoomCard(room) {
     seats.textContent = seatsLabel(room.capacity);
 
     meta.append(id, seats);
-    card.append(name, meta);
+    card.append(tag, name, meta);
     return card;
 }
 
@@ -93,7 +148,7 @@ async function submitBooking(event) {
 
     const request = {
         roomId: form.elements["roomId"].value,
-        studentId: form.elements["studentId"].value.trim(),
+        studentId: learner.studentNumber,
         start: date + "T" + start,
         end: date + "T" + end
     };
@@ -109,38 +164,46 @@ async function submitBooking(event) {
             body: JSON.stringify(request)
         });
         const body = await response.json().catch(() => ({}));
+        showMessage(message, "", "");
 
         if (response.ok) {
-            showMessage(message, "", "");
             openBookingDialog(roomName(body.roomId) + ", " + date + ", " + start + " to " + end);
         } else {
-            showMessage(message, body.error || "Booking failed (status " + response.status + ").", "error");
+            openErrorDialog(body.error || "Booking failed (status " + response.status + ").");
         }
     } catch (error) {
-        showMessage(message, "Could not reach the server. Please try again.", "error");
+        showMessage(message, "", "");
+        openErrorDialog("Could not reach the server. Please try again.");
     } finally {
         button.disabled = false;
     }
 }
 
-// ---------- Success pop-up ----------
+// ---------- Pop-ups ----------
 
 function openBookingDialog(details) {
-    const dialog = document.getElementById("booking-dialog");
     document.getElementById("booking-dialog-details").textContent = details;
-    dialog.showModal();
+    document.getElementById("booking-dialog").showModal();
+}
+
+/**
+ * Shows why a booking was rejected. The form keeps what the learner typed, so they only fix one thing.
+ */
+function openErrorDialog(reason) {
+    document.getElementById("error-dialog-details").textContent = reason;
+    document.getElementById("error-dialog").showModal();
 }
 
 /**
  * Clears the form so the next booking starts fresh.
- * Runs whenever the pop-up closes, whether by the OK button or the Escape key.
+ * Runs whenever the success pop-up closes, whether by the OK button or the Escape key.
  */
 function resetBookingForm() {
     const form = document.getElementById("booking-form");
     form.reset();
     document.getElementById("booking-date").value = tomorrowAsIsoDate();
     showMessage(document.getElementById("booking-message"), "", "");
-    document.getElementById("student-id").focus();
+    document.getElementById("room-select").focus();
 }
 
 function roomName(roomId) {
@@ -163,9 +226,25 @@ function tomorrowAsIsoDate() {
     return year + "-" + month + "-" + day;
 }
 
-document.getElementById("booking-date").value = tomorrowAsIsoDate();
-document.getElementById("booking-form").addEventListener("submit", submitBooking);
-document.getElementById("booking-dialog").addEventListener("close", resetBookingForm);
+// ---------- Start ----------
 
-checkHealth();
-loadRooms();
+function start() {
+    learner = storedLearner();
+
+    // Only logged-in learners can use this page
+    if (!learner) {
+        window.location.replace("/login.html");
+        return;
+    }
+
+    showLearner();
+    document.getElementById("booking-date").value = tomorrowAsIsoDate();
+    document.getElementById("booking-form").addEventListener("submit", submitBooking);
+    document.getElementById("booking-dialog").addEventListener("close", resetBookingForm);
+    document.getElementById("logout-button").addEventListener("click", logOut);
+
+    checkHealth();
+    loadRooms();
+}
+
+start();

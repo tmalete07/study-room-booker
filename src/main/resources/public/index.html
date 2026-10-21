@@ -6,23 +6,52 @@
     <title>Study Room Booker | Tswelopele Secondary School</title>
     <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/learner.css">
 </head>
 <body>
 <header>
-    <div class="brand">
-        <img class="brand-badge" src="/img/tss-badge.svg" alt="Tswelopele Secondary School badge">
-        <div>
-            <p class="school-name" data-testid="school-name">Tswelopele Secondary School</p>
-            <h1>Study Room Booker</h1>
+    <div class="header-top">
+        <div class="brand">
+            <img class="brand-badge" src="/img/tss-badge.svg" alt="Tswelopele Secondary School badge">
+            <div>
+                <p class="school-name" data-testid="school-name">Tswelopele Secondary School</p>
+                <h1>Study Room Booker</h1>
+            </div>
+        </div>
+
+        <div class="account">
+                <span class="learner-chip" data-testid="learner-chip">
+                    <span class="avatar" id="learner-initials" aria-hidden="true"></span>
+                    <span id="learner-chip-name"></span>
+                </span>
+            <button type="button" id="logout-button" class="logout-button" data-testid="logout-button">Log out</button>
         </div>
     </div>
     <p class="status">Server status: <span id="health-status" data-testid="health-status">checking...</span></p>
 </header>
 
 <main>
+    <section id="welcome" class="welcome" data-testid="welcome-section">
+        <h2>Welcome, <span id="learner-first-name" data-testid="learner-first-name"></span></h2>
+        <dl class="learner-details">
+            <div>
+                <dt>Full name</dt>
+                <dd id="learner-name" data-testid="learner-name"></dd>
+            </div>
+            <div>
+                <dt>Grade</dt>
+                <dd id="learner-grade" data-testid="learner-grade"></dd>
+            </div>
+            <div>
+                <dt>Student number</dt>
+                <dd id="learner-number" data-testid="learner-number"></dd>
+            </div>
+        </dl>
+    </section>
+
     <section id="rooms" data-testid="rooms-section">
-        <h2>Rooms</h2>
-        <p class="section-intro">Pick a room that fits your group. Bookings run from 08:00 to 20:00.</p>
+        <h2>Rooms you can book</h2>
+        <p class="section-intro">Your grade's quiet room and the rooms every grade shares. Bookings run from 08:00 to 20:00.</p>
 
         <ul id="room-list" class="room-grid" data-testid="room-list"></ul>
         <p id="rooms-message" class="message" data-testid="rooms-message">Loading rooms...</p>
@@ -33,12 +62,6 @@
         <p class="section-intro">Bookings last 30 minutes to 2 hours. You can make up to 2 bookings a day.</p>
 
         <form id="booking-form" class="booking-form" data-testid="booking-form">
-            <label class="field">
-                <span>Student ID</span>
-                <input type="text" name="studentId" id="student-id" data-testid="student-id"
-                       placeholder="e.g. student-1" autocomplete="off" required>
-            </label>
-
             <label class="field">
                 <span>Room</span>
                 <select name="roomId" id="room-select" data-testid="room-select" required>
@@ -80,6 +103,22 @@
 
     <form method="dialog">
         <button type="submit" class="dialog-button" data-testid="booking-dialog-ok" autofocus>OK</button>
+    </form>
+</dialog>
+
+<dialog id="error-dialog" class="booking-dialog" data-testid="error-dialog"
+        aria-labelledby="error-dialog-title">
+    <svg class="cross" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="cross-circle" cx="26" cy="26" r="24"/>
+        <path class="cross-line" d="M18 18 L34 34"/>
+        <path class="cross-line cross-line-second" d="M34 18 L18 34"/>
+    </svg>
+
+    <h2 id="error-dialog-title" class="dialog-title">Booking not made</h2>
+    <p id="error-dialog-details" class="dialog-details" data-testid="error-dialog-details"></p>
+
+    <form method="dialog">
+        <button type="submit" class="dialog-button error-button" data-testid="error-dialog-ok" autofocus>OK</button>
     </form>
 </dialog>
 

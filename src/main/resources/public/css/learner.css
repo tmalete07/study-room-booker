@@ -1,0 +1,198 @@
+
+/* ---------- Header: account area ---------- */
+
+.header-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.account {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.learner-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.3rem 0.9rem 0.3rem 0.3rem;
+    border-radius: 999px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary-deep);
+    background: var(--accent);
+}
+
+.logout-button {
+    font: inherit;
+    font-weight: 500;
+    color: #fff;
+    padding: 0.45rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Welcome card ---------- */
+
+.welcome h2 {
+    margin-bottom: 1rem;
+}
+
+.learner-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 0;
+}
+
+.learner-details dt {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.learner-details dd {
+    margin: 0;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* ---------- Room tags ---------- */
+
+.room-tag {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.05rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--surface);
+    background: var(--primary);
+}
+
+.room-tag.shared {
+    color: var(--primary);
+    background: var(--surface);
+    border: 1px solid rgba(109, 26, 46, 0.2);
+}
+
+/* ---------- Rejection pop-up: a red cross that draws itself ---------- */
+
+.cross {
+    display: block;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto;
+}
+
+.cross-circle {
+    fill: none;
+    stroke: var(--danger);
+    stroke-width: 3;
+    stroke-dasharray: 152;
+    stroke-dashoffset: 152;
+    animation: draw 0.6s ease-out forwards;
+}
+
+.cross-line {
+    fill: none;
+    stroke: var(--danger);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: draw 0.2s ease-out 0.5s forwards;
+}
+
+.cross-line-second {
+    animation-delay: 0.7s;
+}
+
+.error-button {
+    background: var(--danger);
+}
+
+.error-button:focus-visible {
+    outline-color: rgba(198, 47, 69, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cross-circle,
+    .cross-line {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ---------- Grade 12: white, like the seniors' trim ---------- */
+
+body.grade-12 header {
+    color: var(--primary-deep);
+    background: var(--surface);
+    border-bottom: 4px solid var(--accent);
+}
+
+body.grade-12 header::after {
+    background: rgba(228, 138, 168, 0.16);
+}
+
+body.grade-12 .school-name {
+    color: var(--primary);
+}
+
+body.grade-12 .learner-chip,
+body.grade-12 .status {
+    background: var(--pink-soft);
+    border-color: rgba(109, 26, 46, 0.15);
+}
+
+body.grade-12 .logout-button {
+    color: var(--primary);
+    border-color: rgba(109, 26, 46, 0.3);
+}
+
+body.grade-12 .logout-button:hover {
+    background: var(--pink-soft);
+}
+
+body.grade-12 .avatar {
+    color: var(--surface);
+    background: var(--primary);
+}
+
+body.grade-12 .room-card {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 600px) {
+    .account {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

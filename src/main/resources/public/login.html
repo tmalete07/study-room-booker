@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in | Tswelopele Secondary School</title>
+    <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<header>
+    <div class="brand">
+        <img class="brand-badge" src="/img/tss-badge.svg" alt="Tswelopele Secondary School badge">
+        <div>
+            <p class="school-name" data-testid="school-name">Tswelopele Secondary School</p>
+            <h1>Study Room Booker</h1>
+        </div>
+    </div>
+</header>
+
+<main class="login-main">
+    <section data-testid="login-section">
+        <h2>Learner log in</h2>
+        <p class="section-intro">Use your full name and student number to book a study room.</p>
+
+        <form id="login-form" class="login-form" data-testid="login-form">
+            <label class="field">
+                <span>Full name</span>
+                <input type="text" name="name" id="learner-name" data-testid="learner-name"
+                       placeholder="e.g. Palesa Ndlovu" autocomplete="name" required>
+            </label>
+
+            <label class="field">
+                <span>Student number</span>
+                <input type="text" name="studentNumber" id="student-number" data-testid="student-number"
+                       placeholder="e.g. TSS1234-11" autocomplete="off" aria-describedby="student-number-hint" required>
+                <small id="student-number-hint" class="hint">
+                    TSS, 4 digits, a dash, then your grade (8 to 12). No spaces.
+                </small>
+            </label>
+
+            <button type="submit" id="login-button" data-testid="login-button">Log in</button>
+        </form>
+
+        <p id="login-message" class="message" data-testid="login-message" role="alert"></p>
+    </section>
+</main>
+
+<script src="/js/login.js"></script>
+</body>
+</html>
