@@ -1,0 +1,133 @@
+/* ---------- My bookings page ---------- */
+
+.booking-group + .booking-group {
+    margin-top: 1.25rem;
+}
+
+.booking-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.booking-item {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.9rem 0;
+    border-top: 1px solid rgba(109, 26, 46, 0.10);
+}
+
+.booking-item:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+/* A small calendar-style date block */
+.date-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.35rem 0;
+    border-radius: 10px;
+    line-height: 1.15;
+    color: var(--primary-deep);
+    background: var(--pink-soft);
+}
+
+.date-day {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.date-number {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.date-month {
+    font-size: 0.72rem;
+}
+
+.booking-room {
+    display: block;
+    font-weight: 700;
+}
+
+.booking-time {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.status-tag {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    vertical-align: middle;
+    color: var(--success);
+    background: rgba(46, 158, 107, 0.12);
+}
+
+.past .date-block {
+    color: var(--muted);
+    background: rgba(114, 95, 102, 0.10);
+}
+
+.past .booking-room {
+    color: var(--muted);
+}
+
+.button-danger {
+    color: #fff;
+    border: 1px solid var(--danger);
+    background: var(--danger);
+}
+
+.button-danger:hover {
+    filter: brightness(0.92);
+}
+
+.cancel-button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+.empty-note {
+    margin: 0;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.empty-note a {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+@media (max-width: 520px) {
+    .booking-item {
+        grid-template-columns: 3.6rem 1fr;
+    }
+
+    .booking-item .cancel-button {
+        grid-column: 2;
+        justify-self: start;
+    }
+}

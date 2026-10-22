@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My bookings | Tswelopele Secondary School</title>
+    <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/app-layout.css">
+    <link rel="stylesheet" href="/css/learner.css">
+    <link rel="stylesheet" href="/css/bookings.css">
+</head>
+<body class="app-page">
+<header class="app-header">
+    <a class="app-brand" href="/">
+        <img class="app-badge" src="/img/tss-badge.svg" alt="">
+        <span>
+                <span class="app-school" data-testid="school-name">Tswelopele Secondary School</span>
+                <span class="app-title">Study Room Booker</span>
+            </span>
+    </a>
+
+    <nav class="app-nav" aria-label="Main">
+        <a href="/rooms.html" data-testid="nav-rooms">Rooms</a>
+        <a href="/bookings.html" aria-current="page" data-testid="nav-bookings">My bookings</a>
+        <a href="/" data-testid="nav-profile">My profile</a>
+        <button type="button" id="logout-button" class="nav-logout" data-testid="logout-button">Log out</button>
+    </nav>
+</header>
+
+<main class="app-main">
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">My bookings</h1>
+            <p class="page-subtitle">Your upcoming bookings, and the last 5 you have had.</p>
+        </div>
+        <div class="page-actions">
+            <a href="/book.html" class="button button-primary" data-testid="book-room-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v15H5zM5 9h14M9 3v4M15 3v4"/></svg>
+                Book a room
+            </a>
+        </div>
+    </div>
+
+    <p id="bookings-message" class="message" data-testid="bookings-message" role="status" aria-live="polite">Loading your bookings...</p>
+
+    <article class="card card-accent booking-group" data-testid="upcoming-section">
+        <div class="card-heading">
+            <h2>Upcoming</h2>
+            <span id="upcoming-count" class="card-note" data-testid="upcoming-count"></span>
+        </div>
+        <ul id="upcoming-list" class="booking-list" data-testid="upcoming-list"></ul>
+    </article>
+
+    <article class="card booking-group" data-testid="past-section">
+        <div class="card-heading">
+            <h2>Recent</h2>
+            <span class="card-note">Your last 5 bookings</span>
+        </div>
+        <ul id="past-list" class="booking-list" data-testid="past-list"></ul>
+    </article>
+</main>
+
+<footer class="app-footer">
+    <span>Tswelopele Secondary School</span>
+    <span>Learner space &middot; Growing together</span>
+</footer>
+
+<dialog id="cancel-dialog" class="booking-dialog" data-testid="cancel-dialog" aria-labelledby="cancel-dialog-title">
+    <h2 id="cancel-dialog-title" class="dialog-title">Cancel this booking?</h2>
+    <p id="cancel-dialog-details" class="dialog-details" data-testid="cancel-dialog-details"></p>
+
+    <div class="dialog-actions">
+        <button type="button" id="keep-booking-button" class="button button-outline" data-testid="keep-booking-button" autofocus>Keep booking</button>
+        <button type="button" id="confirm-cancel-button" class="button button-danger" data-testid="confirm-cancel-button">Yes, cancel it</button>
+    </div>
+</dialog>
+
+<script src="/js/session.js"></script>
+<script src="/js/bookings.js"></script>
+</body>
+</html>
