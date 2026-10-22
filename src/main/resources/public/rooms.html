@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooms | Tswelopele Secondary School</title>
+    <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/app-layout.css">
+    <link rel="stylesheet" href="/css/learner.css">
+    <link rel="stylesheet" href="/css/rooms.css">
+</head>
+<body class="app-page">
+<header class="app-header">
+    <a class="app-brand" href="/">
+        <img class="app-badge" src="/img/tss-badge.svg" alt="">
+        <span>
+                <span class="app-school" data-testid="school-name">Tswelopele Secondary School</span>
+                <span class="app-title">Study Room Booker</span>
+            </span>
+    </a>
+
+    <nav class="app-nav" aria-label="Main">
+        <a href="/rooms.html" aria-current="page" data-testid="nav-rooms">Rooms</a>
+        <a href="/bookings.html" data-testid="nav-bookings">My bookings</a>
+        <a href="/" data-testid="nav-profile">My profile</a>
+        <button type="button" id="logout-button" class="nav-logout" data-testid="logout-button">Log out</button>
+    </nav>
+</header>
+
+<main class="app-main">
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Rooms</h1>
+            <p class="page-subtitle">Your grade's quiet room and the rooms every grade shares. Open from 08:00 to 20:00.</p>
+        </div>
+    </div>
+
+    <p id="rooms-message" class="message" data-testid="rooms-message">Loading rooms...</p>
+
+    <section class="room-group" data-testid="grade-rooms-section">
+        <h2 class="group-title">Your grade's quiet room</h2>
+        <ul id="grade-room-list" class="room-grid" data-testid="grade-room-list"></ul>
+    </section>
+
+    <section class="room-group" data-testid="shared-rooms-section">
+        <h2 class="group-title">Shared rooms</h2>
+        <ul id="shared-room-list" class="room-grid" data-testid="shared-room-list"></ul>
+    </section>
+</main>
+
+<footer class="app-footer">
+    <span>Tswelopele Secondary School</span>
+    <span>Learner space &middot; Growing together</span>
+</footer>
+
+<script src="/js/session.js"></script>
+<script src="/js/rooms.js"></script>
+</body>
+</html>
