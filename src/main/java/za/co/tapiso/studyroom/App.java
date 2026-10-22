@@ -8,6 +8,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.json.JavalinJackson;
+import za.co.tapiso.studyroom.api.AdminBookingResponse;
 import za.co.tapiso.studyroom.api.CreateBookingRequest;
 import za.co.tapiso.studyroom.api.LoginRequest;
 import za.co.tapiso.studyroom.api.LoginResponse;
@@ -135,6 +136,10 @@ public class App {
                     bookings.cancel(ctx.pathParam("id"), student.value());
                     ctx.status(HttpStatus.NO_CONTENT);
                 })
+                .get("/api/admin/bookings", ctx ->
+                        ctx.json(bookings.allBookings().stream()
+                                .map(booking -> AdminBookingResponse.from(booking, rooms, learners))
+                                .toList()))
                 .exception(IllegalArgumentException.class,
                         (e, ctx) -> sendError(ctx, HttpStatus.BAD_REQUEST, e))
                 .exception(LoginFailedException.class,

@@ -53,6 +53,15 @@ public class BookingService {
     }
 
     /**
+     * Returns every booking from every learner, earliest first. Used by the admin office.
+     */
+    public List<Booking> allBookings() {
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing((Booking booking) -> booking.slot().start()))
+                .toList();
+    }
+
+    /**
      * Cancels a booking. Only the student who made the booking may cancel it.
      */
     public void cancel(String bookingId, String studentId) {
