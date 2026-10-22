@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a room | Tswelopele Secondary School</title>
+    <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/app-layout.css">
+    <link rel="stylesheet" href="/css/learner.css">
+</head>
+<body class="app-page">
+<header class="app-header">
+    <a class="app-brand" href="/">
+        <img class="app-badge" src="/img/tss-badge.svg" alt="">
+        <span>
+                <span class="app-school" data-testid="school-name">Tswelopele Secondary School</span>
+                <span class="app-title">Study Room Booker</span>
+            </span>
+    </a>
+
+    <nav class="app-nav" aria-label="Main">
+        <a href="/rooms.html" data-testid="nav-rooms">Rooms</a>
+        <a href="/bookings.html" data-testid="nav-bookings">My bookings</a>
+        <a href="/" data-testid="nav-profile">My profile</a>
+        <button type="button" id="logout-button" class="nav-logout" data-testid="logout-button">Log out</button>
+    </nav>
+</header>
+
+<main class="app-main">
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Book a room</h1>
+            <p class="page-subtitle">Bookings last 30 minutes to 2 hours, between 08:00 and 20:00. You can make up to 2 bookings a day.</p>
+        </div>
+        <div class="page-actions">
+            <a href="/rooms.html" class="button button-outline" data-testid="see-rooms-button">See all rooms</a>
+        </div>
+    </div>
+
+    <article class="card card-accent" data-testid="booking-section">
+        <p class="booking-as">Booking as <strong id="booking-as" data-testid="booking-as"></strong></p>
+
+        <form id="booking-form" class="booking-form" data-testid="booking-form">
+            <label class="field">
+                <span>Room</span>
+                <select name="roomId" id="room-select" data-testid="room-select" required>
+                    <option value="" disabled selected>Choose a room</option>
+                </select>
+            </label>
+
+            <label class="field">
+                <span>Date</span>
+                <input type="date" name="date" id="booking-date" data-testid="booking-date" required>
+            </label>
+
+            <label class="field">
+                <span>Start</span>
+                <input type="time" name="start" id="start-time" data-testid="start-time" value="09:00" required>
+            </label>
+
+            <label class="field">
+                <span>End</span>
+                <input type="time" name="end" id="end-time" data-testid="end-time" value="10:00" required>
+            </label>
+
+            <button type="submit" id="book-button" data-testid="book-button">Book room</button>
+        </form>
+
+        <p id="rooms-message" class="message" data-testid="rooms-message"></p>
+        <p id="booking-message" class="message" data-testid="booking-message" role="status" aria-live="polite"></p>
+    </article>
+</main>
+
+<footer class="app-footer">
+    <span>Tswelopele Secondary School</span>
+    <span>Learner space &middot; Growing together</span>
+</footer>
+
+<dialog id="booking-dialog" class="booking-dialog" data-testid="booking-dialog"
+        aria-labelledby="booking-dialog-title">
+    <svg class="tick" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="tick-circle" cx="26" cy="26" r="24"/>
+        <path class="tick-check" d="M14 27 l8 8 l16 -17"/>
+    </svg>
+
+    <h2 id="booking-dialog-title" class="dialog-title">Room booked!</h2>
+    <p id="booking-dialog-details" class="dialog-details" data-testid="booking-dialog-details"></p>
+
+    <form method="dialog">
+        <button type="submit" class="dialog-button" data-testid="booking-dialog-ok" autofocus>OK</button>
+    </form>
+    <a href="/bookings.html" class="dialog-link" data-testid="booking-dialog-bookings">View my bookings</a>
+</dialog>
+
+<dialog id="error-dialog" class="booking-dialog" data-testid="error-dialog"
+        aria-labelledby="error-dialog-title">
+    <svg class="cross" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="cross-circle" cx="26" cy="26" r="24"/>
+        <path class="cross-line" d="M18 18 L34 34"/>
+        <path class="cross-line cross-line-second" d="M34 18 L18 34"/>
+    </svg>
+
+    <h2 id="error-dialog-title" class="dialog-title">Booking not made</h2>
+    <p id="error-dialog-details" class="dialog-details" data-testid="error-dialog-details"></p>
+
+    <form method="dialog">
+        <button type="submit" class="dialog-button error-button" data-testid="error-dialog-ok" autofocus>OK</button>
+    </form>
+</dialog>
+
+<script src="/js/session.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,58 +1,7 @@
-// The logged-in learner, saved by the login page for this browser tab only
-const LEARNER_KEY = "tss-learner";
+// The booking page. The logged-in learner comes from session.js.
 
 let learner = null;
 let roomsById = new Map();
-
-function storedLearner() {
-    try {
-        return JSON.parse(sessionStorage.getItem(LEARNER_KEY));
-    } catch (error) {
-        return null;
-    }
-}
-
-async function checkHealth() {
-    const statusElement = document.getElementById("health-status");
-    try {
-        const response = await fetch("/api/health");
-        const data = await response.json();
-        statusElement.textContent = data.status;
-        statusElement.dataset.status = data.status;
-    } catch (error) {
-        statusElement.textContent = "DOWN";
-        statusElement.dataset.status = "DOWN";
-    }
-}
-
-// ---------- Learner details ----------
-
-function showLearner() {
-    const firstName = learner.name.split(" ")[0];
-
-    document.getElementById("learner-first-name").textContent = firstName;
-    document.getElementById("learner-name").textContent = learner.name;
-    document.getElementById("learner-grade").textContent = "Grade " + learner.grade;
-    document.getElementById("learner-number").textContent = learner.studentNumber;
-    document.getElementById("learner-chip-name").textContent = learner.name + " \u00b7 Grade " + learner.grade;
-    document.getElementById("learner-initials").textContent = initials(learner.name);
-
-    // Grade 12 learners get the white theme
-    document.body.classList.toggle("grade-12", learner.grade === 12);
-}
-
-function initials(name) {
-    return name.split(" ")
-        .filter(part => part.length > 0)
-        .slice(0, 2)
-        .map(part => part[0].toUpperCase())
-        .join("");
-}
-
-function logOut() {
-    sessionStorage.removeItem(LEARNER_KEY);
-    window.location.replace("/login.html");
-}
 
 // ---------- Rooms ----------
 
@@ -64,7 +13,6 @@ function isOpenToLearner(room) {
 }
 
 async function loadRooms() {
-    const list = document.getElementById("room-list");
     const message = document.getElementById("rooms-message");
 
     try {
@@ -75,51 +23,17 @@ async function loadRooms() {
         const rooms = (await response.json()).filter(isOpenToLearner);
         roomsById = new Map(rooms.map(room => [room.id, room]));
 
-        list.replaceChildren(...rooms.map(createRoomCard));
         fillRoomSelect(rooms);
-        message.textContent = rooms.length === 0 ? "No rooms are available yet." : "";
-        message.classList.remove("error");
+        chooseRoomFromAddress();
+        showMessage(message, rooms.length === 0 ? "No rooms are available yet." : "", "");
     } catch (error) {
-        list.replaceChildren();
-        message.textContent = "Could not load rooms. Is the server running?";
-        message.classList.add("error");
+        showMessage(message, "Could not load rooms. Is the server running?", "error");
     }
-}
-
-function createRoomCard(room) {
-    const card = document.createElement("li");
-    card.className = "room-card";
-    card.dataset.testid = "room-" + room.id;
-
-    const tag = document.createElement("span");
-    const isShared = room.grade === null || room.grade === undefined;
-    tag.className = isShared ? "room-tag shared" : "room-tag";
-    tag.textContent = isShared ? "All grades" : "Grade " + room.grade + " only";
-
-    const name = document.createElement("h3");
-    name.className = "room-name";
-    name.textContent = room.name;
-
-    const meta = document.createElement("div");
-    meta.className = "room-meta";
-
-    const id = document.createElement("span");
-    id.className = "room-id";
-    id.textContent = room.id;
-
-    const seats = document.createElement("span");
-    seats.textContent = seatsLabel(room.capacity);
-
-    meta.append(id, seats);
-    card.append(tag, name, meta);
-    return card;
 }
 
 function seatsLabel(capacity) {
     return capacity === 1 ? "1 seat" : capacity + " seats";
 }
-
-// ---------- Booking form ----------
 
 function fillRoomSelect(rooms) {
     const select = document.getElementById("room-select");
@@ -134,6 +48,19 @@ function fillRoomSelect(rooms) {
 
     select.replaceChildren(placeholder, ...options);
 }
+
+/**
+ * The Rooms page links here as /book.html?room=Q11, so that room is already chosen.
+ * A room the learner cannot book (for example another grade's quiet room) is simply not chosen.
+ */
+function chooseRoomFromAddress() {
+    const roomId = new URLSearchParams(window.location.search).get("room");
+    if (roomId && roomsById.has(roomId)) {
+        document.getElementById("room-select").value = roomId;
+    }
+}
+
+// ---------- Booking ----------
 
 async function submitBooking(event) {
     event.preventDefault();
@@ -211,11 +138,6 @@ function roomName(roomId) {
     return room ? room.name : roomId;
 }
 
-function showMessage(element, text, type) {
-    element.textContent = text;
-    element.className = type ? "message " + type : "message";
-}
-
 function tomorrowAsIsoDate() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -229,21 +151,17 @@ function tomorrowAsIsoDate() {
 // ---------- Start ----------
 
 function start() {
-    learner = storedLearner();
-
-    // Only logged-in learners can use this page
+    learner = requireLearner();
     if (!learner) {
-        window.location.replace("/login.html");
         return;
     }
 
-    showLearner();
+    document.getElementById("booking-as").textContent =
+        learner.name + " \u00b7 Grade " + learner.grade + " \u00b7 " + learner.studentNumber;
     document.getElementById("booking-date").value = tomorrowAsIsoDate();
     document.getElementById("booking-form").addEventListener("submit", submitBooking);
     document.getElementById("booking-dialog").addEventListener("close", resetBookingForm);
-    document.getElementById("logout-button").addEventListener("click", logOut);
 
-    checkHealth();
     loadRooms();
 }
 
