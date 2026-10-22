@@ -1,0 +1,132 @@
+/* ---------- Admin page ---------- */
+
+.admin-badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--primary-deep);
+    background: var(--accent);
+}
+
+/* ---------- Summary numbers ---------- */
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    list-style: none;
+}
+
+.summary-item {
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid rgba(109, 26, 46, 0.10);
+}
+
+.summary-number {
+    display: block;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--primary);
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* ---------- Filters ---------- */
+
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.filters select {
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    padding: 0.55rem 0.7rem;
+    border: 1px solid rgba(109, 26, 46, 0.18);
+    border-radius: 10px;
+    background: var(--surface);
+}
+
+.showing-count {
+    margin: 1rem 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* ---------- Table ---------- */
+
+/* Only the table scrolls sideways on a small screen, never the whole page */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.bookings-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.bookings-table th {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid rgba(109, 26, 46, 0.15);
+}
+
+.bookings-table td {
+    padding: 0.7rem 0.75rem;
+    border-bottom: 1px solid rgba(109, 26, 46, 0.08);
+}
+
+.bookings-table tbody tr:hover {
+    background: var(--pink-soft);
+}
+
+.bookings-table .empty-row td {
+    padding: 1.5rem 0.75rem;
+    font-style: italic;
+    text-align: center;
+    color: var(--muted);
+}
+
+/* Not called .status: style.css already uses that name for the header's server-status badge */
+.status-pill {
+    display: inline-block;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status-upcoming {
+    color: var(--primary);
+    background: rgba(109, 26, 46, 0.10);
+}
+
+.status-now {
+    color: var(--success);
+    background: rgba(46, 158, 107, 0.12);
+}
+
+.status-past {
+    color: var(--muted);
+    background: rgba(114, 95, 102, 0.10);
+}

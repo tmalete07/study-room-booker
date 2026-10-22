@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin office | Tswelopele Secondary School</title>
+    <link rel="icon" href="/img/tss-badge.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/app-layout.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="app-page">
+<header class="app-header">
+    <a class="app-brand" href="/admin.html">
+        <img class="app-badge" src="/img/tss-badge.svg" alt="">
+        <span>
+                <span class="app-school" data-testid="school-name">Tswelopele Secondary School</span>
+                <span class="app-title">Study Room Booker</span>
+            </span>
+    </a>
+
+    <nav class="app-nav" aria-label="Main">
+        <span class="admin-badge" data-testid="admin-badge">Admin office</span>
+        <a href="/login.html" data-testid="nav-learner-login">Learner log in</a>
+    </nav>
+</header>
+
+<main class="app-main">
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">All bookings</h1>
+            <p class="page-subtitle">Every study room booking, from every grade.</p>
+        </div>
+        <div class="page-actions">
+            <button type="button" id="refresh-button" class="button button-outline" data-testid="refresh-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <ul class="summary" data-testid="summary">
+        <li class="summary-item">
+            <span class="summary-number" id="count-total" data-testid="count-total">0</span>
+            <span class="summary-label">Bookings in total</span>
+        </li>
+        <li class="summary-item">
+            <span class="summary-number" id="count-today" data-testid="count-today">0</span>
+            <span class="summary-label">Today</span>
+        </li>
+        <li class="summary-item">
+            <span class="summary-number" id="count-upcoming" data-testid="count-upcoming">0</span>
+            <span class="summary-label">Upcoming</span>
+        </li>
+    </ul>
+
+    <article class="card">
+        <form id="filters" class="filters" data-testid="filters">
+            <label class="field">
+                <span>Show</span>
+                <select id="filter-when" data-testid="filter-when">
+                    <option value="upcoming" selected>Upcoming</option>
+                    <option value="past">Past</option>
+                    <option value="all">All</option>
+                </select>
+            </label>
+
+            <label class="field">
+                <span>Grade</span>
+                <select id="filter-grade" data-testid="filter-grade">
+                    <option value="all" selected>All grades</option>
+                    <option value="8">Grade 8</option>
+                    <option value="9">Grade 9</option>
+                    <option value="10">Grade 10</option>
+                    <option value="11">Grade 11</option>
+                    <option value="12">Grade 12</option>
+                </select>
+            </label>
+
+            <label class="field">
+                <span>Room</span>
+                <select id="filter-room" data-testid="filter-room">
+                    <option value="all" selected>All rooms</option>
+                </select>
+            </label>
+        </form>
+
+        <p id="admin-message" class="message" data-testid="admin-message" role="status" aria-live="polite">Loading bookings...</p>
+        <p id="showing-count" class="showing-count" data-testid="showing-count"></p>
+
+        <div class="table-wrapper">
+            <table class="bookings-table" data-testid="bookings-table">
+                <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Room</th>
+                    <th scope="col">Learner</th>
+                    <th scope="col">Grade</th>
+                    <th scope="col">Student number</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody id="bookings-body" data-testid="bookings-body"></tbody>
+            </table>
+        </div>
+    </article>
+</main>
+
+<footer class="app-footer">
+    <span>Tswelopele Secondary School</span>
+    <span>Admin office</span>
+</footer>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
