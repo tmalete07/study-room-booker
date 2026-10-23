@@ -14,6 +14,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.javalin.Javalin;
 import za.co.tapiso.studyroom.App;
+import za.co.tapiso.studyroom.acceptance.pages.LoginPage;
+import za.co.tapiso.studyroom.acceptance.pages.ProfilePage;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
 import za.co.tapiso.studyroom.repository.InMemoryBookingRepository;
 import za.co.tapiso.studyroom.repository.InMemoryLearnerRepository;
@@ -37,9 +39,10 @@ public class LoginSteps {
     private static Browser browser;
 
     private Javalin server;
-    private String baseUrl;
     private BrowserContext context;
     private Page page;
+    private LoginPage loginPage;
+    private ProfilePage profilePage;
 
     @BeforeAll
     public static void launchBrowser() {
@@ -67,10 +70,12 @@ public class LoginSteps {
                 InMemoryRoomRepository.withDefaultRooms(),
                 bookings,
                 InMemoryLearnerRepository.withSampleLearners()).start(0);
-        baseUrl = "http://localhost:" + server.port();
+        String baseUrl = "http://localhost:" + server.port();
 
         context = browser.newContext();
         page = context.newPage();
+        loginPage = new LoginPage(page, baseUrl);
+        profilePage = new ProfilePage(page, baseUrl);
     }
 
     @After
@@ -83,16 +88,14 @@ public class LoginSteps {
 
     @Given("I am on the login page")
     public void iAmOnTheLoginPage() {
-        page.navigate(baseUrl + "/login.html");
+        loginPage.open();
     }
 
     // ---------- When ----------
 
     @When("I log in as {string} with student number {string}")
     public void iLogInAs(String name, String studentNumber) {
-        page.getByTestId("learner-name").fill(name);
-        page.getByTestId("student-number").fill(studentNumber);
-        page.getByTestId("login-button").click();
+        loginPage.logIn(name, studentNumber);
     }
 
     // ---------- Then ----------
@@ -100,23 +103,23 @@ public class LoginSteps {
     // Playwright's assertThat keeps retrying until it passes or times out, so no sleeps are needed
     @Then("I see my profile page")
     public void iSeeMyProfilePage() {
-        assertThat(page).hasURL(baseUrl + "/");
-        assertThat(page.locator(".page-title")).hasText("My learner profile");
+        assertThat(page).hasURL(profilePage.url());
+        assertThat(profilePage.title()).hasText("My learner profile");
     }
 
     @Then("my name {string} is shown")
     public void myNameIsShown(String name) {
-        assertThat(page.getByTestId("profile-name")).containsText(name);
+        assertThat(profilePage.learnerName()).containsText(name);
     }
 
     @Then("I am still on the login page")
     public void iAmStillOnTheLoginPage() {
-        assertThat(page).hasURL(Pattern.compile(".*/login\\.html$"));
+        assertThat(page).hasURL(LoginPage.URL);
     }
 
     @Then("I see a login error")
     public void iSeeALoginError() {
-        assertThat(page.getByTestId("login-message")).hasClass(Pattern.compile("\\berror\\b"));
-        assertThat(page.getByTestId("login-message")).not().isEmpty();
+        assertThat(loginPage.message()).hasClass(Pattern.compile("\\berror\\b"));
+        assertThat(loginPage.message()).not().isEmpty();
     }
 }
