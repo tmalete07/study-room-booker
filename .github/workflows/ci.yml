@@ -1,0 +1,49 @@
+# Runs the whole build and every test on a clean machine for each push and pull request
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      # Java 17 is what the pom compiles for, so CI proves it really works on 17
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # Playwright needs Chromium plus some Linux libraries. Calling its CLI with the test classpath installs both
+      - name: Install Chromium for Playwright
+        run: |
+          mvn -B -q dependency:build-classpath -Dmdep.outputFile=classpath.txt
+          java -cp "$(cat classpath.txt)" com.microsoft.playwright.CLI install --with-deps chromium
+
+      # Fast tests, acceptance tests, coverage reports and the coverage check
+      - name: Build and test
+        run: mvn -B verify
+
+      # Kept even when the build fails, so a failure can be investigated from the reports and screenshots
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/cucumber-report.html
+            target/screenshots/
+            target/site/jacoco/
+            target/site/jacoco-it/
+            target/surefire-reports/
+            target/failsafe-reports/
+          if-no-files-found: ignore
