@@ -5,6 +5,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import io.javalin.Javalin;
 import za.co.tapiso.studyroom.App;
+import za.co.tapiso.studyroom.acceptance.pages.BookPage;
 import za.co.tapiso.studyroom.acceptance.pages.LoginPage;
 import za.co.tapiso.studyroom.acceptance.pages.ProfilePage;
 import za.co.tapiso.studyroom.domain.BookingPolicy;
@@ -57,11 +58,19 @@ public class TestWorld {
         return page;
     }
 
+    public String baseUrl() {
+        return baseUrl;
+    }
+
     public LoginPage loginPage() {
         return new LoginPage(page, baseUrl);
     }
 
     public ProfilePage profilePage() {
         return new ProfilePage(page, baseUrl);
+    }
+
+    public BookPage bookPage() {
+        return new BookPage(page, baseUrl);
     }
 }
