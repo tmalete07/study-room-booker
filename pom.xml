@@ -20,6 +20,7 @@
         <restassured.version>5.4.0</restassured.version>
         <cucumber.version>7.18.1</cucumber.version>
         <playwright.version>1.48.0</playwright.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <!-- Pins the Byte Buddy version Mockito needs, so an older one from another library is not used -->
@@ -160,6 +161,41 @@
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Measures which lines and branches the tests run. Placed after Surefire and Failsafe so the reports come after the tests -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <!-- Fast tests: recorded to target/jacoco.exec, report in target/site/jacoco -->
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <!-- Acceptance tests: recorded to target/jacoco-it.exec, report in target/site/jacoco-it -->
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-integration</id>
+                        <goals>
+                            <goal>report-integration</goal>
                         </goals>
                     </execution>
                 </executions>
