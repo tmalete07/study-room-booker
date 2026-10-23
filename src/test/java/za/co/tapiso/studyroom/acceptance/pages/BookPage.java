@@ -2,6 +2,7 @@ package za.co.tapiso.studyroom.acceptance.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 /**
  * The booking page: choose a room, a date and a time, then book.
@@ -23,6 +24,14 @@ public class BookPage {
     }
 
     /**
+     * Opens the page the way the Rooms page links to it, with a room already asked for in the address.
+     */
+    public BookPage openForRoom(String roomId) {
+        page.navigate(baseUrl + "/book.html?room=" + roomId);
+        return this;
+    }
+
+    /**
      * Fills in and sends the booking form. The date is yyyy-MM-dd and the times are HH:mm.
      */
     public void book(String roomId, String date, String start, String end) {
@@ -32,6 +41,23 @@ public class BookPage {
         page.getByTestId("start-time").fill(start);
         page.getByTestId("end-time").fill(end);
         page.getByTestId("book-button").click();
+    }
+
+    public Locator roomSelect() {
+        return page.getByTestId("room-select");
+    }
+
+    public Locator roomOption(String roomId) {
+        return page.locator("[data-testid='room-select'] option[value='" + roomId + "']");
+    }
+
+    /**
+     * Waits until the rooms from the API are in the list (any option other than "Choose a room").
+     * Checks that a room is NOT there must wait for this first, or they would pass before the list has loaded.
+     */
+    public void waitForRoomsToLoad() {
+        page.locator("[data-testid='room-select'] option:not([value=''])").first()
+                .waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED));
     }
 
     public Locator successDialog() {
