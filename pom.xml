@@ -115,6 +115,13 @@
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Gives every step class in a scenario the same TestWorld, so they share one server and browser tab -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
