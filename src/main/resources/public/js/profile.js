@@ -25,9 +25,10 @@ async function loadProfile() {
 }
 
 function renderProfile() {
-    const gradeAndClass = "Grade " + profile.grade + (profile.className ? " \u00b7 Class " + profile.className : "");
+    const gradeAndClass = "Grade " + profile.grade + (profile.className ? " · Class " + profile.className : "");
 
     document.getElementById("profile-initials").textContent = initials(profile.name);
+    showPhoto(profile.studentNumber);
     document.getElementById("profile-name").textContent = profile.name;
     document.getElementById("profile-grade-class").textContent = gradeAndClass;
 
@@ -41,6 +42,25 @@ function renderProfile() {
     renderSubjects();
     renderAbout();
     renderGoals();
+}
+
+/**
+ * Shows the learner's photo from /img/learners/<student number>.jpg.
+ * A learner without a photo keeps the initials instead.
+ */
+function showPhoto(studentNumber) {
+    const photo = document.getElementById("profile-photo");
+    const initialsText = document.getElementById("profile-initials");
+
+    photo.onload = () => {
+        photo.hidden = false;
+        initialsText.hidden = true;
+    };
+    photo.onerror = () => {
+        photo.hidden = true;
+        initialsText.hidden = false;
+    };
+    photo.src = "/img/learners/" + encodeURIComponent(studentNumber) + ".jpg";
 }
 
 function renderSubjects() {

@@ -20,6 +20,8 @@
 }
 
 .photo {
+    position: relative;
+    overflow: hidden;
     display: grid;
     place-items: center;
     aspect-ratio: 1 / 1.08;
@@ -29,8 +31,18 @@
     font-weight: 600;
     color: var(--surface);
     background:
-        radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), transparent 55%),
-        linear-gradient(160deg, var(--accent) 0%, var(--primary) 70%);
+            radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), transparent 55%),
+            linear-gradient(160deg, var(--accent) 0%, var(--primary) 70%);
+}
+
+/* Covers the initials box completely; object-fit keeps the face from being stretched */
+.photo-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
 }
 
 .identity-name {
