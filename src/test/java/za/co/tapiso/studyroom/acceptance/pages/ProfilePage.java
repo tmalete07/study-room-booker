@@ -27,4 +27,12 @@ public class ProfilePage {
     public Locator learnerName() {
         return page.getByTestId("profile-name");
     }
+
+    public Locator photo() {
+        return page.getByTestId("profile-photo");
+    }
+
+    public Locator initials() {
+        return page.getByTestId("profile-initials");
+    }
 }
