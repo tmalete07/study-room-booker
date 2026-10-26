@@ -8,7 +8,10 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/login.css">
 </head>
-<body>
+<body class="login-page">
+<!-- The school photo sits behind everything, blurred, under a maroon gradient -->
+<div class="login-backdrop" aria-hidden="true"></div>
+
 <header>
     <div class="brand">
         <img class="brand-badge" src="/img/tss-badge.svg" alt="Tswelopele Secondary School badge">
@@ -46,6 +49,8 @@
         <p id="login-message" class="message" data-testid="login-message" role="alert"></p>
     </section>
 </main>
+
+<p class="photo-note">Background photo: illustration (AI-generated)</p>
 
 <script src="/js/login.js"></script>
 </body>

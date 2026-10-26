@@ -1,8 +1,56 @@
 /* ---------- Login page ---------- */
 
 .login-main {
+    z-index: 1;
     max-width: 460px;
 }
+
+/* ---------- Blurred school photo behind the page ---------- */
+
+.login-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url("/img/school-group.jpg") center 30% / cover no-repeat;
+    filter: blur(5px);
+    /* Blur makes the edges see-through, so the photo is drawn slightly bigger than the screen */
+    transform: scale(1.08);
+}
+
+/* Solid maroon at the top (matching the header) fading into the photo, then darker again at the bottom */
+.login-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        var(--primary-deep) 0%,
+        rgba(109, 26, 46, 0.92) 18%,
+        rgba(109, 26, 46, 0.55) 45%,
+        rgba(109, 26, 46, 0.35) 70%,
+        rgba(74, 15, 31, 0.70) 100%);
+}
+
+/* The header lets the gradient show through instead of drawing its own block of maroon */
+.login-page header {
+    z-index: 1;
+    background: transparent;
+}
+
+.login-page section {
+    box-shadow: 0 24px 60px rgba(30, 5, 12, 0.35);
+}
+
+.photo-note {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 1.5rem;
+    font-size: 0.72rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ---------- Login form ---------- */
 
 .login-form {
     display: flex;
